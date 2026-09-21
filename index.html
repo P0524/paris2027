@@ -118,7 +118,8 @@
             <div class="bg-white rounded-3xl px-3 sm:px-6 py-5 sm:p-8 shadow-sm w-full overflow-hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6 w-full px-1 sm:px-0">
                     <div class="flex-1 w-full pl-1">
-                        <h2 id="day-title" class="text-xl sm:text-2xl font-black text-slate-800 leading-tight"></h2>
+                        <h2 id="day-title" class="text-xl sm:text-2xl font-black text-slate-800 leading-tight">第 1 天</h2>
+                        <!-- Dynamic auto-updating subtitle based on itinerary items -->
                         <p id="day-subtitle" class="text-slate-500 text-xs sm:text-sm mt-1.5 leading-relaxed"></p>
                     </div>
                     <button onclick="openDailyRouteMap()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-3 sm:py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 whitespace-nowrap flex-shrink-0">
@@ -317,40 +318,40 @@
                     inbound: { date: "2027-02-09", no: "BR88", dept: "02/09 11:20", arr: "02/10 07:20" }
                 },
                 days: [
-                    { date: "2/3-2/4", label: "三➔四", subtitle: "初抵巴黎・經典地標與塞納河畔", desc: "戴高樂機場 CDG 抵達與入境 ➔ 飯店寄放行李 附近簡餐 ➔ 艾菲爾鐵塔 戰神廣場 ➔ 塞納河景觀遊船 ➔ 晚餐Le Bouillon Chartier", items: [
+                    { date: "2/3-2/4", label: "三➔四", items: [
                         { time: "07:45", title: "✈️ 戴高樂機場(CDG)抵達與入境", desc: "購買 Navigo 週票或搭乘 RER B 線直達市區", mapKey: "CDG Airport", cost: 0, travelAfter: { mode: "train", text: "00時 35分" } },
                         { time: "11:00", title: "🏨 飯店寄放行李 & 附近簡餐", desc: "Maison Traversière", mapKey: "Maison Traversiere Paris", cost: 500, travelAfter: { mode: "walk", text: "00時 15分" } },
                         { time: "14:00", title: "🗼 艾菲爾鐵塔 & 戰神廣場", desc: "預約電梯登頂，俯瞰巴黎全市美景", tips: "戰神廣場是拍攝鐵塔全身照的最佳地點", mapKey: "Eiffel Tower", cost: 2450, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "17:30", title: "🚢 塞納河景觀遊船", desc: "欣賞兩岸古蹟與日落夕陽", mapKey: "Bateaux Parisiens", cost: 600, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "18:30", title: "🍽️ 晚餐：Le Bouillon Chartier", desc: "百年平價法式餐廳", tips: "必點油封鴨 (Confit de Canard) 與法式螺肉", mapKey: "Le Bouillon Chartier", cost: 1200, travelAfter: null }
                     ]},
-                    { date: "2/5", label: "五", subtitle: "藝術殿堂與左岸咖啡時光", desc: "羅浮宮博物館 ➔ 杜樂麗花園 散步 ➔ 花神咖啡館 ➔ 聖日耳曼德佩區 逛街", items: [
+                    { date: "2/5", label: "五", items: [
                         { time: "09:00", title: "🖼️ 羅浮宮博物館", desc: "重點觀賞三寶：《蒙娜麗莎》、《勝利女神》、《維納斯》", tips: "入口處安檢較久，建議提前抵達", mapKey: "Louvre Museum", cost: 2000, travelAfter: { mode: "walk", text: "00時 08分" } },
                         { time: "13:30", title: "🌳 杜樂麗花園", desc: "散步與休息", mapKey: "Jardin des Tuileries", cost: 0, travelAfter: { mode: "walk", text: "00時 12分" } },
                         { time: "15:00", title: "☕ 花神咖啡館 (Café de Flore)", desc: "體驗左岸人文氣息", tips: "招牌熱巧克力與千層派必點", mapKey: "Café de Flore Paris", cost: 650, travelAfter: { mode: "walk", text: "00時 05分" } },
                         { time: "17:30", title: "🛍️ 聖日耳曼德佩區 逛街與晚餐", desc: "自由逛街與尋找晚餐", mapKey: "Saint-Germain-des-Prés", cost: 1500, travelAfter: null }
                     ]},
-                    { date: "2/6", label: "六", subtitle: "凡爾賽宮奢華巡禮與瑪黑區文青探索", desc: "凡爾賽宮 & 花園 ➔ 奧塞美術館 ➔ 瑪黑區文青小店巡禮 & 晚餐", items: [
+                    { date: "2/6", label: "六", items: [
                         { time: "08:30", title: "👑 凡爾賽宮 & 花園", desc: "搭乘 RER C 線直達 Versailles Château", tips: "鏡廳人潮眾多，建議一入內先直奔鏡廳拍照", mapKey: "Palace of Versailles", cost: 1800, travelAfter: { mode: "train", text: "00時 45分" } },
                         { time: "14:30", title: "🎨 奧塞美術館 (Musée d'Orsay)", desc: "欣賞梵谷、莫內、雷諾瓦等印象派名家畫作", mapKey: "Musée d'Orsay", cost: 1600, travelAfter: { mode: "car", text: "00時 15分" } },
                         { time: "18:00", title: "🚶 瑪黑區逛街與晚餐", desc: "文青小店與歷史街區", mapKey: "Le Marais Paris", cost: 1200, travelAfter: null }
                     ]},
-                    { date: "2/7", label: "日", subtitle: "建築美學、時尚購物與凱旋門夜景", desc: "加尼葉歌劇院 ➔ 老佛爺百貨 & 春天百貨購物 ➔ 香榭麗舍大道 & 凱旋門登頂", items: [
+                    { date: "2/7", label: "日", items: [
                         { time: "09:30", title: "🎭 加尼葉歌劇院", desc: "參觀華麗金碧輝煌的大樓梯與內部", mapKey: "Palais Garnier", cost: 1200, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "12:30", title: "🛍️ 老佛爺百貨 & 春天百貨購物", desc: "辦理退稅手續", tips: "頂樓觀景台可免費俯瞰巴黎全景", mapKey: "Galeries Lafayette Haussmann", cost: 0, travelAfter: { mode: "car", text: "00時 15分" } },
                         { time: "17:30", title: "⛩️ 香榭麗舍大道 & 凱旋門登頂", desc: "遠眺 12 條大道交會壯麗夜景", mapKey: "Arc de Triomphe", cost: 1100, travelAfter: null }
                     ]},
-                    { date: "2/8", label: "一", subtitle: "印象派光影與西堤島人文歷史", desc: "橘園美術館 ➔ 莎士比亞書店 ➔ 巴黎聖母院 ➔ 龐畢度中心", items: [
+                    { date: "2/8", label: "一", items: [
                         { time: "10:00", title: "🖼️ 橘園美術館", desc: "欣賞莫內 360 度環景巨幅《睡蓮》", mapKey: "Musée de l'Orangerie", cost: 1100, travelAfter: { mode: "walk", text: "00時 15分" } },
                         { time: "12:30", title: "📚 莎士比亞書店 & 左岸舊書攤", desc: "著名英文書店", mapKey: "Shakespeare and Company Paris", cost: 0, travelAfter: { mode: "walk", text: "00時 08分" } },
                         { time: "14:30", title: "⛪ 巴黎聖母院外圍 & 西堤島", desc: "西堤島散步", mapKey: "Notre-Dame de Paris", cost: 0, travelAfter: { mode: "car", text: "00時 12分" } },
                         { time: "17:00", title: "🏢 龐畢度中心", desc: "現代藝術展與建築外觀", mapKey: "Centre Pompidou", cost: 0, travelAfter: null }
                     ]},
-                    { date: "2/9", label: "二", subtitle: "離懷巴黎・前往戴高樂機場", desc: "退房並出發前往機場 ➔ 辦理退稅、Check-in 與登機", items: [
+                    { date: "2/9", label: "二", items: [
                         { time: "08:00", title: "🎒 退房前往機場", desc: "搭乘 RER B 或預約專車前往 CDG 機場", mapKey: "CDG Airport", cost: 600, travelAfter: { mode: "train", text: "00時 40分" } },
                         { time: "08:40", title: "📝 機場辦理退稅、報到登機", desc: "航班 BR88（11:20 起飛）", mapKey: "CDG Terminal 1", cost: 0, travelAfter: null }
                     ]},
-                    { date: "2/10", label: "三", subtitle: "返抵國門", desc: "順利抵達台北", items: [
+                    { date: "2/10", label: "三", items: [
                         { time: "06:30", title: "🛬 抵達台北桃園國際機場 (TPE)", desc: "行程圓滿結束！", mapKey: "TPE Airport", cost: 0, travelAfter: null }
                     ]}
                 ],
@@ -471,14 +472,12 @@
 
             const handleTouchMove = (e) => {
                 if (!isLongPressed || draggedIndex === null) {
-                    // If user moves finger before long press completes, cancel timer
                     if (Math.abs(e.touches[0].clientY - startY) > 10) {
                         clearTimeout(pressTimer);
                     }
                     return;
                 }
                 
-                // Prevent scrolling during active drag
                 e.preventDefault();
                 
                 const touchY = e.touches[0].clientY;
@@ -504,7 +503,6 @@
                 }
             };
 
-            // Mouse equivalents for desktop testing
             const handleMouseDown = (e) => {
                 if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) return;
                 pressTimer = setTimeout(() => {
@@ -575,12 +573,17 @@
             const container = document.getElementById('timeline');
             container.innerHTML = '';
             const trip = getCurrentTrip();
-            const currentDay = trip.days[trip.activeDayIndex || 0];
+            const currentDayIndex = trip.activeDayIndex || 0;
+            const currentDay = trip.days[currentDayIndex];
             
             if (!currentDay) return;
 
-            document.getElementById('day-title').textContent = currentDay.subtitle || `Day ${(trip.activeDayIndex || 0) + 1}`;
-            document.getElementById('day-subtitle').textContent = currentDay.desc || "";
+            // Set main title to "第 X 天"
+            document.getElementById('day-title').textContent = `第 ${currentDayIndex + 1} 天`;
+            
+            // Automatically generate subtitle dynamically from today's item titles joined by arrows
+            const dynamicSummary = currentDay.items.map(item => item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim()).join(' ➔ ');
+            document.getElementById('day-subtitle').textContent = dynamicSummary;
 
             currentDay.items.forEach((item, index) => {
                 const wrapper = document.createElement('div');
@@ -635,7 +638,7 @@
                     </div>
                 `;
 
-                // Transit segment between items (夹缝交通显示)
+                // Transit segment between items
                 if (item.travelAfter) {
                     const t = item.travelAfter;
                     let icon = "🚶";
@@ -684,7 +687,7 @@
             trip.days.forEach((day, i) => {
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = `${day.date} (${day.label}) — ${i === currentDayIndex ? '目前所在天' : '移動至此'}`;
+                option.textContent = `第 ${i + 1} 天 (${day.date}) — ${i === currentDayIndex ? '目前所在天' : '移動至此'}`;
                 if (i === currentDayIndex) option.selected = true;
                 select.appendChild(option);
             });
