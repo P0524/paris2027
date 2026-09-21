@@ -24,7 +24,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Smooth Drag and Drop animations with dashed indicator and touch lock */
         .draggable-card {
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
             touch-action: pan-y;
@@ -186,8 +185,8 @@
                     <h3 class="font-bold text-lg text-slate-800 flex items-center"><span class="mr-2">🎟️</span> 票券與交通待辦</h3>
                     <span id="ticket-count" class="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full whitespace-nowrap">共 0 項</span>
                 </div>
-                <div id="ticket-list" class="space-y-3 mb-5 w-full"></div>
-                <div class="flex space-x-2 w-full">
+                <div id="ticket-list" class="space-y-4 mb-5 w-full"></div>
+                <div class="flex space-x-2 w-full pt-2 border-t border-slate-100">
                     <input type="text" id="new-ticket-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增門票或交通卡...">
                     <button onclick="addTicket()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
@@ -205,7 +204,7 @@
                 </div>
                 <div id="packing-list" class="space-y-2 mb-6 w-full"></div>
                 <div class="flex space-x-2 w-full">
-                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增清單項目...">
+                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增專案項目...">
                     <button onclick="addPackingItem()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
             </div>
@@ -356,17 +355,24 @@
                     ]}
                 ],
                 tickets: [
-                    { name: "羅浮宮快速通關門票", cost: 2000, done: true },
-                    { name: "艾菲爾鐵塔登頂門票", cost: 2450, done: false },
-                    { name: "凡爾賽宮 & 花園套票", cost: 1800, done: false },
-                    { name: "塞納河遊船船票", cost: 600, done: false },
-                    { name: "凱旋門登頂門票", cost: 1100, done: false },
-                    { name: "Navigo 交通卡預算", cost: 1500, done: false }
+                    { name: "羅浮宮快速通關門票", cost: 2000, done: false, category: "景點門票", note: "務必提前線上預約時段" },
+                    { name: "艾菲爾鐵塔登頂門票", cost: 2450, done: false, category: "景點門票", note: "建議提前預約時段" },
+                    { name: "凡爾賽宮 & 花園套票", cost: 1800, done: false, category: "景點門票", note: "點此新增備註" },
+                    { name: "塞納河遊船船票", cost: 600, done: false, category: "景點門票", note: "點此新增備註" },
+                    { name: "凱旋門登頂門票", cost: 1100, done: false, category: "景點門票", note: "點此新增備註" },
+                    { name: "Navigo 交通卡預算", cost: 1500, done: false, category: "交通票卡", note: "機場購買" }
                 ],
                 packing: [
-                    { name: "護照（效期 6 個月以上）與影本", done: true },
-                    { name: "歐洲上網 eSIM / 實體 SIM 卡", done: false },
-                    { name: "歐元現金與高回饋信用卡", done: false }
+                    { name: "護照（效期6個月以上）", done: false },
+                    { name: "機票、飯店訂單截圖/紙本", done: false },
+                    { name: "歐元現金 + 信用卡（雙卡分開放）", done: false },
+                    { name: "旅平險保單", done: false },
+                    { name: "歐洲上網 eSIM", done: false },
+                    { name: "手機充電線、歐規轉接頭、行動電源", done: false },
+                    { name: "保暖外套、圍巾、手套、毛帽", done: false },
+                    { name: "防水鞋", done: false },
+                    { name: "常備藥品", done: false },
+                    { name: "環保購物袋（法國超市多需自備）", done: false }
                 ]
             }
         };
@@ -382,7 +388,17 @@
         function initApp() {
             const savedData = localStorage.getItem('multiTripData');
             if (savedData) {
-                try { appData = JSON.parse(savedData); } catch(e) {}
+                try { 
+                    appData = JSON.parse(savedData);
+                    Object.keys(appData.trips).forEach(k => {
+                        if(!appData.trips[k].packing || appData.trips[k].packing.length === 0) {
+                            appData.trips[k].packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
+                        }
+                        if(!appData.trips[k].tickets || appData.trips[k].tickets.length === 0) {
+                            appData.trips[k].tickets = JSON.parse(JSON.stringify(presetTemplates.paris.tickets));
+                        }
+                    });
+                } catch(e) {}
             }
             document.getElementById('gas-url').value = gasUrl;
             renderAll();
@@ -391,6 +407,9 @@
         function getCurrentTrip() {
             if (!appData.trips[appData.activeTripId]) {
                 appData.activeTripId = Object.keys(appData.trips)[0];
+            }
+            if(!appData.trips[appData.activeTripId].packing || appData.trips[appData.activeTripId].packing.length === 0) {
+                appData.trips[appData.activeTripId].packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
             }
             return appData.trips[appData.activeTripId];
         }
@@ -451,7 +470,7 @@
             });
         }
 
-        // --- Robust Long-Press Drag and Drop with Touch Scroll Lock ---
+        // --- Long-Press Drag and Drop ---
         let draggedIndex = null;
         let targetIndex = null;
 
@@ -467,7 +486,7 @@
                     isLongPressed = true;
                     startDragging(el, index);
                     if (navigator.vibrate) navigator.vibrate(60);
-                }, 400); // 0.4 seconds long press
+                }, 400);
             };
 
             const handleTouchMove = (e) => {
@@ -477,12 +496,9 @@
                     }
                     return;
                 }
-                
                 e.preventDefault();
-                
                 const touchY = e.touches[0].clientY;
                 const cards = document.querySelectorAll('.draggable-card');
-                
                 cards.forEach((card, idx) => {
                     const rect = card.getBoundingClientRect();
                     if (touchY >= rect.top && touchY <= rect.bottom) {
@@ -515,7 +531,6 @@
                 if (!isLongPressed || draggedIndex === null) return;
                 const mouseY = e.clientY;
                 const cards = document.querySelectorAll('.draggable-card');
-                
                 cards.forEach((card, idx) => {
                     const rect = card.getBoundingClientRect();
                     if (mouseY >= rect.top && mouseY <= rect.bottom) {
@@ -578,7 +593,6 @@
             
             if (!currentDay) return;
 
-            // Set main title to "第 X 天"
             document.getElementById('day-title').textContent = `第 ${currentDayIndex + 1} 天`;
             
             // Automatically generate subtitle dynamically from today's item titles joined by arrows
@@ -592,14 +606,10 @@
                 setupLongPressDragAndDrop(wrapper, index, currentDay);
 
                 let htmlStr = `
-                    <!-- Timeline vertical line and dot safely positioned to avoid overlap -->
                     <div class="absolute left-[-22px] top-4 bottom-[-16px] w-0.5 bg-slate-200 pointer-events-none"></div>
                     <div class="absolute left-[-26px] top-[1.25rem] w-3 h-3 rounded-full border-[2px] border-white bg-indigo-600 shadow-sm z-10 pointer-events-none"></div>
-                    
-                    <!-- Time display shifted left to prevent overlapping the gray line -->
                     <div class="absolute left-[-82px] top-[1.05rem] text-[12px] font-black text-amber-600 tracking-tighter text-right w-[54px]">${item.time || ''}</div>
                     
-                    <!-- Main Card -->
                     <div class="bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition-all relative flex flex-col gap-3 group overflow-hidden w-full select-none">
                         <div class="flex-1 w-full flex flex-col">
                             <div class="flex justify-between items-start mb-1 w-full">
@@ -638,7 +648,6 @@
                     </div>
                 `;
 
-                // Transit segment between items
                 if (item.travelAfter) {
                     const t = item.travelAfter;
                     let icon = "🚶";
@@ -824,46 +833,169 @@
         function renderTickets() {
             const container = document.getElementById('ticket-list');
             container.innerHTML = '';
-            const tickets = getCurrentTrip().tickets || [];
+            const trip = getCurrentTrip();
+            const tickets = trip.tickets || [];
+            
             document.getElementById('ticket-count').textContent = `共 ${tickets.length} 項`;
+
+            let totalTicketCost = tickets.reduce((sum, t) => sum + (Number(t.cost) || 0), 0);
+
+            let html = `
+                <div class="bg-amber-50/60 border border-amber-100 p-3.5 rounded-2xl flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold text-amber-900 flex items-center">🎟️ 景點門票類</span>
+                    <span class="text-sm font-black text-amber-800 font-mono">NT$${totalTicketCost.toLocaleString()}</span>
+                </div>
+            `;
+
             tickets.forEach((t, i) => {
-                container.innerHTML += `
-                    <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-                        <div class="flex items-center space-x-3 flex-1 min-w-0 pr-2">
-                            <input type="checkbox" ${t.done?'checked':''} onchange="toggleTicket(${i})" class="w-5 h-5 rounded text-blue-600">
-                            <span class="${t.done?'line-through text-slate-400':'text-slate-700 font-bold'} text-sm truncate">${t.name}</span>
+                const isDone = t.done;
+                html += `
+                    <div class="bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm space-y-3 relative">
+                        <div class="flex items-center justify-between gap-3">
+                            <button onclick="toggleTicket(${i})" class="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 shadow-sm transition-all whitespace-nowrap ${isDone ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}">
+                                <span>${isDone ? '已購買' : '尚未購買'}</span>
+                                <span class="text-[10px] opacity-80">▾</span>
+                            </button>
+                            <input type="text" value="${t.name}" onchange="updateTicketName(${i}, this.value)" class="font-black text-slate-800 text-base sm:text-lg bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none flex-1">
                         </div>
-                        <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg">NT$ ${t.cost}</span>
-                    </div>`;
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-50">
+                            <div class="flex items-center space-x-2">
+                                <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
+                                    <span class="text-xs mr-1">💰</span>
+                                    <input type="number" value="${t.cost || 0}" onchange="updateTicketCost(${i}, this.value)" class="w-20 bg-transparent font-mono font-bold text-sm text-slate-800 outline-none">
+                                </div>
+                                <select onchange="updateTicketCategory(${i}, this.value)" class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl px-3 py-2 outline-none font-bold cursor-pointer shadow-sm">
+                                    <option value="景點門票" ${t.category === '景點門票' ? 'selected' : ''}>景點門票</option>
+                                    <option value="交通票卡" ${t.category === '交通票卡' ? 'selected' : ''}>交通票卡</option>
+                                    <option value="其他費用" ${t.category === '其他費用' ? 'selected' : ''}>其他費用</option>
+                                </select>
+                            </div>
+                            <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 text-base p-2 rounded-xl transition-colors" title="刪除">🗑️</button>
+                        </div>
+
+                        <div>
+                            <input type="text" value="${t.note || ''}" placeholder="點此新增備註（例如：訂購連結、時段、注意事項）..." onchange="updateTicketNote(${i}, this.value)" class="w-full text-xs text-slate-500 bg-slate-50/60 border border-slate-100 rounded-2xl px-3.5 py-2.5 outline-none focus:border-blue-300">
+                        </div>
+                    </div>
+                `;
             });
+
+            container.innerHTML = html;
         }
-        function toggleTicket(i) { getCurrentTrip().tickets[i].done = !getCurrentTrip().tickets[i].done; saveLocal(); renderTickets(); }
+
+        function toggleTicket(i) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.tickets[i].done = !trip.tickets[i].done;
+            saveLocal();
+            renderTickets();
+        }
+
+        function updateTicketName(i, val) {
+            recordStateForUndo();
+            getCurrentTrip().tickets[i].name = val.trim();
+            saveLocal();
+        }
+
+        function updateTicketCost(i, val) {
+            recordStateForUndo();
+            getCurrentTrip().tickets[i].cost = Number(val) || 0;
+            saveLocal();
+            renderTickets();
+            renderBudget();
+        }
+
+        function updateTicketCategory(i, val) {
+            recordStateForUndo();
+            getCurrentTrip().tickets[i].category = val;
+            saveLocal();
+        }
+
+        function updateTicketNote(i, val) {
+            recordStateForUndo();
+            getCurrentTrip().tickets[i].note = val.trim();
+            saveLocal();
+        }
+
+        function deleteTicket(i) {
+            if(confirm('確定要刪除這項門票或交通待辦嗎？')) {
+                recordStateForUndo();
+                getCurrentTrip().tickets.splice(i, 1);
+                saveLocal();
+                renderTickets();
+                renderBudget();
+            }
+        }
+
         function addTicket() {
             const inp = document.getElementById('new-ticket-input');
-            if(inp.value.trim()){ getCurrentTrip().tickets.push({name: inp.value.trim(), cost: 0, done: false}); inp.value = ''; saveLocal(); renderTickets(); renderBudget(); }
+            const name = inp.value.trim();
+            if(name) {
+                recordStateForUndo();
+                getCurrentTrip().tickets.push({ name: name, cost: 0, done: false, category: "景點門票", note: "" });
+                inp.value = '';
+                saveLocal();
+                renderTickets();
+                renderBudget();
+                showNotification("已新增待辦項目！");
+            }
         }
 
         function renderPacking() {
             const container = document.getElementById('packing-list');
             container.innerHTML = '';
-            const packing = getCurrentTrip().packing || [];
+            const trip = getCurrentTrip();
+            if(!trip.packing || trip.packing.length === 0) {
+                trip.packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
+            }
+            const packing = trip.packing;
+
             const doneCount = packing.filter(p=>p.done).length;
             document.getElementById('packing-progress').textContent = `${doneCount}/${packing.length} 完成`;
             document.getElementById('packing-progress-bar').style.width = `${packing.length ? (doneCount/packing.length)*100 : 0}%`;
+            
             packing.forEach((p, i) => {
                 container.innerHTML += `
                     <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <div class="flex items-center space-x-3 flex-1 min-w-0">
-                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded text-emerald-500">
+                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded text-emerald-500 cursor-pointer">
                             <span class="${p.done?'line-through text-slate-400':'text-slate-700 font-bold'} text-sm truncate">${p.name}</span>
                         </div>
+                        <button onclick="deletePackingItem(${i})" class="text-slate-300 hover:text-red-500 p-1.5 text-xs transition-colors" title="刪除">🗑️</button>
                     </div>`;
             });
         }
-        function togglePacking(i) { getCurrentTrip().packing[i].done = !getCurrentTrip().packing[i].done; saveLocal(); renderPacking(); }
+
+        function togglePacking(i) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.packing[i].done = !trip.packing[i].done;
+            saveLocal();
+            renderPacking();
+        }
+
         function addPackingItem() {
             const inp = document.getElementById('new-packing-input');
-            if(inp.value.trim()){ getCurrentTrip().packing.push({name: inp.value.trim(), done: false}); inp.value = ''; saveLocal(); renderPacking(); }
+            const val = inp.value.trim();
+            if(val) {
+                recordStateForUndo();
+                const trip = getCurrentTrip();
+                if(!trip.packing) trip.packing = [];
+                trip.packing.push({name: val, done: false});
+                inp.value = '';
+                saveLocal();
+                renderPacking();
+                showNotification("已新增行李項目！");
+            }
+        }
+
+        function deletePackingItem(i) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.packing.splice(i, 1);
+            saveLocal();
+            renderPacking();
         }
 
         function setBaseCurrency(currency) {
@@ -899,9 +1031,35 @@
         function openDailyRouteMap() {
             const trip = getCurrentTrip();
             const currentDay = trip.days[trip.activeDayIndex || 0];
-            if (!currentDay || !currentDay.items.length) { showNotification('今日尚無行程', 'error'); return; }
-            const waypoints = currentDay.items.map(item => encodeURIComponent(item.mapKey || item.title));
-            window.open(`https://www.google.com/maps/search/?api=1&query=${waypoints[0]}`, '_blank');
+            if (!currentDay || !currentDay.items.length) { 
+                showNotification('今日尚無行程', 'error'); 
+                return; 
+            }
+            
+            const locations = currentDay.items
+                .map(item => item.mapKey || item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim())
+                .filter(loc => loc.length > 0);
+
+            if (locations.length === 0) {
+                showNotification('今日尚無可用導航地點', 'error');
+                return;
+            }
+
+            if (locations.length === 1) {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locations[0])}`, '_blank');
+                return;
+            }
+
+            const origin = encodeURIComponent(locations[0]);
+            const destination = encodeURIComponent(locations[locations.length - 1]);
+            let mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+            
+            if (locations.length > 2) {
+                const waypoints = locations.slice(1, locations.length - 1).map(loc => encodeURIComponent(loc)).join('|');
+                mapsUrl += `&waypoints=${waypoints}`;
+            }
+
+            window.open(mapsUrl, '_blank');
         }
 
         function showNotification(msg, type='success') {
