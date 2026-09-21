@@ -24,18 +24,19 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Smooth Drag and Drop animations with dashed indicator */
+        /* Smooth Drag and Drop animations with dashed indicator and touch lock */
         .draggable-card {
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
             touch-action: pan-y;
         }
         .dragging-active {
-            opacity: 0.85;
+            opacity: 0.9;
             transform: scale(1.03) rotate(1deg);
-            box-shadow: 0 25px 30px -5px rgb(0 0 0 / 0.2), 0 10px 15px -5px rgb(0 0 0 / 0.1);
+            box-shadow: 0 25px 30px -5px rgb(0 0 0 / 0.25), 0 10px 15px -5px rgb(0 0 0 / 0.1);
             z-index: 100;
             background-color: #ffffff;
             border: 2px dashed #6366f1 !important;
+            touch-action: none;
         }
         .drop-target-indicator {
             border-top: 3px dashed #6366f1 !important;
@@ -109,7 +110,7 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto mt-6 px-1.5 sm:px-4 w-full">
+    <main class="max-w-4xl mx-auto mt-6 px-1 sm:px-4 w-full">
         
         <div id="view-itinerary" class="space-y-6 w-full">
             <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
@@ -125,7 +126,7 @@
                     </button>
                 </div>
                 
-                <!-- Timeline container with non-overlapping perfectly separated time & vertical line -->
+                <!-- Timeline container with safely separated time & vertical line -->
                 <div id="timeline" class="relative pl-16 sm:pl-24 pb-6 space-y-4 mt-4 pr-1"></div>
                 
                 <div class="px-1 sm:px-0 mt-6">
@@ -449,43 +450,37 @@
             });
         }
 
-        // --- Long-Press (重壓) Drag and Drop with Smooth Animation & Dashed Target Indicators ---
+        // --- Robust Long-Press Drag and Drop with Touch Scroll Lock ---
         let draggedIndex = null;
         let targetIndex = null;
 
         function setupLongPressDragAndDrop(el, index, currentDay) {
             let pressTimer = null;
             let isLongPressed = false;
+            let startY = 0;
 
-            // Mouse events for desktop
-            el.addEventListener('mousedown', (e) => {
-                if (e.target.closest('button') || e.target.closest('input')) return;
+            const handleTouchStart = (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) return;
+                startY = e.touches[0].clientY;
                 pressTimer = setTimeout(() => {
                     isLongPressed = true;
                     startDragging(el, index);
-                }, 400); // 400ms long press / hard press
-            });
+                    if (navigator.vibrate) navigator.vibrate(60);
+                }, 400); // 0.4 seconds long press
+            };
 
-            window.addEventListener('mouseup', () => {
-                clearTimeout(pressTimer);
-                if (isLongPressed) {
-                    stopDragging(el, currentDay);
-                    isLongPressed = false;
+            const handleTouchMove = (e) => {
+                if (!isLongPressed || draggedIndex === null) {
+                    // If user moves finger before long press completes, cancel timer
+                    if (Math.abs(e.touches[0].clientY - startY) > 10) {
+                        clearTimeout(pressTimer);
+                    }
+                    return;
                 }
-            });
-
-            // Touch events for mobile (重壓觸發)
-            el.addEventListener('touchstart', (e) => {
-                if (e.target.closest('button') || e.target.closest('input')) return;
-                pressTimer = setTimeout(() => {
-                    isLongPressed = true;
-                    startDragging(el, index);
-                    if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback on long press
-                }, 400);
-            }, {passive: true});
-
-            el.addEventListener('touchmove', (e) => {
-                if (!isLongPressed || draggedIndex === null) return;
+                
+                // Prevent scrolling during active drag
+                e.preventDefault();
+                
                 const touchY = e.touches[0].clientY;
                 const cards = document.querySelectorAll('.draggable-card');
                 
@@ -499,21 +494,64 @@
                         }
                     }
                 });
-            }, {passive: true});
+            };
 
-            el.addEventListener('touchend', () => {
+            const handleTouchEnd = () => {
                 clearTimeout(pressTimer);
                 if (isLongPressed) {
                     stopDragging(el, currentDay);
                     isLongPressed = false;
                 }
-            });
+            };
+
+            // Mouse equivalents for desktop testing
+            const handleMouseDown = (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('textarea')) return;
+                pressTimer = setTimeout(() => {
+                    isLongPressed = true;
+                    startDragging(el, index);
+                }, 400);
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isLongPressed || draggedIndex === null) return;
+                const mouseY = e.clientY;
+                const cards = document.querySelectorAll('.draggable-card');
+                
+                cards.forEach((card, idx) => {
+                    const rect = card.getBoundingClientRect();
+                    if (mouseY >= rect.top && mouseY <= rect.bottom) {
+                        targetIndex = idx;
+                        cards.forEach(c => c.classList.remove('drop-target-indicator'));
+                        if (targetIndex !== draggedIndex) {
+                            card.classList.add('drop-target-indicator');
+                        }
+                    }
+                });
+            };
+
+            const handleMouseUp = () => {
+                clearTimeout(pressTimer);
+                if (isLongPressed) {
+                    stopDragging(el, currentDay);
+                    isLongPressed = false;
+                }
+            };
+
+            el.addEventListener('touchstart', handleTouchStart, {passive: true});
+            window.addEventListener('touchmove', handleTouchMove, {passive: false});
+            window.addEventListener('touchend', handleTouchEnd);
+
+            el.addEventListener('mousedown', handleMouseDown);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
         }
 
         function startDragging(el, index) {
             draggedIndex = index;
+            targetIndex = index;
             el.classList.add('dragging-active');
-            showNotification("✨ 已啟動重壓拖曳模式，請上下移動！", "success");
+            showNotification("✨ 已進入長按拖曳排序模式", "success");
         }
 
         function stopDragging(el, currentDay) {
@@ -551,20 +589,20 @@
                 setupLongPressDragAndDrop(wrapper, index, currentDay);
 
                 let htmlStr = `
-                    <!-- Vertical timeline line & blue dot cleanly separated from time -->
-                    <div class="absolute left-[-24px] top-4 bottom-[-16px] w-0.5 bg-slate-200 pointer-events-none"></div>
-                    <div class="absolute left-[-28px] top-[1.25rem] w-3.5 h-3.5 rounded-full border-[3px] border-white bg-indigo-600 shadow-sm z-10 pointer-events-none"></div>
+                    <!-- Timeline vertical line and dot safely positioned to avoid overlap -->
+                    <div class="absolute left-[-22px] top-4 bottom-[-16px] w-0.5 bg-slate-200 pointer-events-none"></div>
+                    <div class="absolute left-[-26px] top-[1.25rem] w-3 h-3 rounded-full border-[2px] border-white bg-indigo-600 shadow-sm z-10 pointer-events-none"></div>
                     
-                    <!-- Time display placed cleanly to the left without overlap -->
-                    <div class="absolute left-[-86px] top-[1.05rem] text-[13px] font-black text-amber-600 tracking-tighter text-right w-[54px]">${item.time || ''}</div>
+                    <!-- Time display shifted left to prevent overlapping the gray line -->
+                    <div class="absolute left-[-82px] top-[1.05rem] text-[12px] font-black text-amber-600 tracking-tighter text-right w-[54px]">${item.time || ''}</div>
                     
-                    <!-- Main Card with grab handle and smooth animations -->
+                    <!-- Main Card -->
                     <div class="bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition-all relative flex flex-col gap-3 group overflow-hidden w-full select-none">
                         <div class="flex-1 w-full flex flex-col">
                             <div class="flex justify-between items-start mb-1 w-full">
                                 <h4 class="font-black text-slate-800 text-[15px] sm:text-lg flex-1 pr-2 leading-tight break-words">${item.title}</h4>
                                 <div class="flex items-center space-x-1 -mt-1 -mr-2 flex-shrink-0">
-                                    <span class="text-slate-300 hover:text-indigo-600 text-sm px-1.5 cursor-grab active:cursor-grabbing" title="長按可拖曳排序">⋮⋮</span>
+                                    <span class="text-slate-300 hover:text-indigo-600 text-sm px-1.5 cursor-grab active:cursor-grabbing" title="長按卡片即可拖曳排序">⋮⋮</span>
                                     <button onclick="editItem(${index})" class="text-slate-400 hover:text-blue-500 transition-colors p-2 rounded-lg" title="編輯">✏️</button>
                                     <button onclick="deleteItem(${index})" class="text-slate-400 hover:text-red-500 transition-colors p-2 rounded-lg" title="刪除">🗑️</button>
                                 </div>
