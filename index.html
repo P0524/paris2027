@@ -1,4 +1,3 @@
-<!-- ... existing code ... -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -83,13 +82,13 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-3 sm:px-4 py-4">
-        <!-- 導覽列標籤，改用可愛的 Emoji 標示 -->
+        <!-- 導覽列標籤 -->
         <nav class="flex space-x-1 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/80 mb-4 overflow-x-auto no-scrollbar">
             <button onclick="switchTab('itinerary')" id="tab-btn-itinerary" class="tab-btn flex-1 min-w-[85px] py-2 px-2 text-xs sm:text-sm font-bold rounded-xl transition-all text-blue-900 bg-blue-50 shadow-sm border border-blue-200/50">
                 <span class="mr-1 text-sm">📅</span> 每日行程
             </button>
             <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn flex-1 min-w-[85px] py-2 px-2 text-xs sm:text-sm font-bold text-slate-500 rounded-xl hover:text-slate-900 transition-all">
-                <span class="mr-1 text-sm">✈️</span> 總覽住宿
+                <span class="mr-1 text-sm">✈️</span> 航班住宿 <!-- 已修改標籤名稱 -->
             </button>
             <button onclick="switchTab('tickets')" id="tab-btn-tickets" class="tab-btn flex-1 min-w-[85px] py-2 px-2 text-xs sm:text-sm font-bold text-slate-500 rounded-xl hover:text-slate-900 transition-all">
                 <span class="mr-1 text-sm">🎟️</span> 門票交通
@@ -105,7 +104,6 @@
         <section id="tab-itinerary" class="tab-content space-y-4">
             <div id="day-selector" class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar"></div>
             
-            <!-- 修改標題區塊，加入「開啟今日路線導航」按鈕 -->
             <div class="bg-white rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center border border-slate-200/80 gap-3">
                 <div>
                     <h2 id="day-header-title" class="text-base sm:text-lg font-bold text-slate-800">載入行程中...</h2>
@@ -125,20 +123,7 @@
         </section>
 
         <section id="tab-overview" class="tab-content hidden space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                    <div class="flex items-center space-x-2 text-slate-900 font-bold border-b pb-2.5">
-                        <i class="fa-solid fa-plane-departure text-amber-500 text-lg"></i><span>航班 / 交通資訊</span>
-                    </div>
-                    <div id="overview-flight-details" class="text-xs space-y-2.5 text-slate-600"></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                    <div class="flex items-center space-x-2 text-slate-900 font-bold border-b pb-2.5">
-                        <i class="fa-solid fa-hotel text-amber-500 text-lg"></i><span>住宿飯店資訊</span>
-                    </div>
-                    <div id="overview-hotel-details" class="text-xs space-y-2 text-slate-600"></div>
-                </div>
-            </div>
+            <div id="overview-container"></div>
         </section>
 
         <section id="tab-tickets" class="tab-content hidden space-y-4">
@@ -230,14 +215,20 @@
             paris: {
                 country: "FR", currency: "EUR", rate: 35, budget: 150000,
                 manualFlight: 100000, manualShopping: 20000, manualHotel: 0,
-                flight: "去程：長榮航空 BR87 | 23:05 台北(TPE) ➔ 02/04 07:45 巴黎戴高樂(CDG)\n回程：長榮航空 BR88 | 11:20 巴黎戴高樂(CDG) ➔ 02/10 06:30 台北(TPE)",
-                hotel: "CitizenM Paris Gare de Lyon (地址：8 Rue de Van Gogh, 75012 Paris)",
+                flightDetails: {
+                    outbound: { date: "2027-02-03", airline: "長榮航空 BR87", route: "TPE (桃園) ➔ CDG (戴高樂)", depTime: "02/03 23:05", arrTime: "02/04 07:45" },
+                    inbound: { date: "2027-02-09", airline: "長榮航空 BR88", route: "CDG (戴高樂) ➔ TPE (桃園)", depTime: "02/09 11:20", arrTime: "02/10 07:20" }
+                },
+                hotels: [
+                    { name: "Maison Traversière", dates: "2/4～2/6 (3晚)", address: "Paris, France" },
+                    { name: "Hotel l'Elysée Val d'Europe", dates: "2/7 (1晚，迪士尼區)", address: "Val d'Europe, Serris, France" }
+                ],
                 days: [
                     { 
                         date: "2/3-2/4", week: "三➔四", title: "初抵巴黎・經典地標與塞納河畔", 
                         items: [
                             { time: "07:45", title: "✈️ 戴高樂機場 (CDG) 抵達與入境", desc: "長榮航空\n準備搭車前往市區", cost: 0 }, 
-                            { time: "11:00", title: "🏨 CitizenM 飯店寄放行李", desc: "先放行李再去吃簡餐", cost: 0 },
+                            { time: "11:00", title: "🏨 Maison Traversière 飯店寄放行李", desc: "先放行李再去吃簡餐", cost: 0 },
                             { time: "14:00", title: "🗼 艾菲爾鐵塔 & 戰神廣場", desc: "預約電梯登頂", cost: 2450 },
                             { time: "17:30", title: "🚢 塞納河景觀遊船", desc: "Bateaux Parisiens", cost: 600 },
                             { time: "18:30", title: "🍽️ 晚餐：Le Bouillon Chartier", desc: "平價法式餐廳，必點油封鴨", cost: 1200 }
@@ -326,17 +317,13 @@
         let masterData = {
             activeTripId: "paris_2027",
             trips: {
-                "paris_2027": {
-                    id: "paris_2027", name: "巴黎 Bonjour 2027", country: "FR", currency: "EUR",
-                    budget: 150000, manualFlight: 100000, manualShopping: 20000, manualHotel: 0,
-                    activeDayIndex: 0, flight: presetTemplates.paris.flight, hotel: presetTemplates.paris.hotel,
-                    days: presetTemplates.paris.days, tickets: presetTemplates.paris.tickets, packing: presetTemplates.paris.packing
-                }
+                "paris_2027": JSON.parse(JSON.stringify(presetTemplates.paris))
             }
         };
 
         let gasUrl = localStorage.getItem('paris_gas_url') || "";
         let undoStack = [];
+        let isOverviewEditMode = false;
 
         window.onload = function() {
             initLocalStorage();
@@ -366,10 +353,18 @@
 
         function ensureFullDataIntegrity() {
             Object.values(masterData.trips).forEach(trip => {
-                if (trip.id === 'paris_2027') {
-                    if (!trip.days || trip.days.length < 7) trip.days = JSON.parse(JSON.stringify(presetTemplates.paris.days));
-                    if (!trip.tickets || trip.tickets.length < 9) trip.tickets = JSON.parse(JSON.stringify(presetTemplates.paris.tickets));
-                    if (!trip.packing || !trip.packing[0] || trip.packing[0].items.length < 11) trip.packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
+                if (trip.id === 'paris_2027' || !trip.id) {
+                    if (!trip.days || trip.days.length < 7) {
+                        trip.days = JSON.parse(JSON.stringify(presetTemplates.paris.days));
+                    }
+                    if (!trip.tickets || trip.tickets.length < 9) {
+                        trip.tickets = JSON.parse(JSON.stringify(presetTemplates.paris.tickets));
+                    }
+                    if (!trip.packing || !trip.packing[0] || trip.packing[0].items.length < 11) {
+                        trip.packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
+                    }
+                    if (!trip.flightDetails) trip.flightDetails = JSON.parse(JSON.stringify(presetTemplates.paris.flightDetails));
+                    if (!trip.hotels) trip.hotels = JSON.parse(JSON.stringify(presetTemplates.paris.hotels));
                 }
             });
         }
@@ -468,7 +463,7 @@
             const container = document.getElementById('day-selector');
             container.innerHTML = '';
             trip.days.forEach((day, index) => {
-                const active = index === trip.activeDayIndex;
+                const active = index === (trip.activeDayIndex || 0);
                 const btn = document.createElement('button');
                 btn.className = `px-3 py-2 rounded-xl text-center min-w-[68px] ${active ? 'bg-blue-900 text-white font-bold' : 'bg-white text-slate-600 border'}`;
                 btn.onclick = () => { trip.activeDayIndex = index; saveLocal(); renderDaySelector(); renderTimeline(); };
@@ -477,23 +472,44 @@
             });
         }
         
-        // 開啟地圖搜尋單一景點
         function openMapSearch(title) {
             const cleanTitle = title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim();
-            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanTitle + ' Paris')}`;
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanTitle)}`;
             window.open(url, '_blank');
         }
 
-        // 開啟當日路線導航
+        function openFlightStatus(airlineStr) {
+            if(!airlineStr) return;
+            const query = airlineStr.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim() + ' 航班動態';
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function openAirportMap(routeStr, type) {
+            if(!routeStr) return;
+            let parts = routeStr.split('➔');
+            if(parts.length === 1) parts = routeStr.split('->');
+            if(parts.length === 1) parts = routeStr.split('-');
+
+            let target = "";
+            if (type === 'dep' && parts.length > 0) target = parts[0].trim();
+            if (type === 'arr' && parts.length > 1) target = parts[1].trim();
+            else if (type === 'arr' && parts.length > 0) target = parts[0].trim(); 
+
+            target = target.replace(/\(.*\)/g, '').trim();
+
+            if(target) {
+                 window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(target + ' 機場 airport')}`, '_blank');
+            }
+        }
+
         function openDayNavigation() {
             const trip = getCurrentTrip();
-            const currentDay = trip.days[trip.activeDayIndex];
+            const currentDay = trip.days[trip.activeDayIndex || 0];
             if(!currentDay || !currentDay.items || currentDay.items.length === 0) {
                 showToast("當日無行程，無法導航！"); return;
             }
             
-            // 提取地點名稱並過濾 Emoji
-            const locations = currentDay.items.map(item => item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim() + ' Paris').filter(loc => loc.length > 5);
+            const locations = currentDay.items.map(item => item.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim()).filter(loc => loc.length > 2);
             
             if (locations.length === 0) return;
 
@@ -513,11 +529,10 @@
 
         function renderTimeline() {
             const trip = getCurrentTrip();
-            const currentDay = trip.days[trip.activeDayIndex];
+            const currentDay = trip.days[trip.activeDayIndex || 0];
             if(!currentDay) return;
             document.getElementById('day-header-title').textContent = currentDay.title;
             
-            // 動態產生今日路線文字
             const routeText = currentDay.items.map(i => i.title.replace(/[^\w\s\u4e00-\u9fa5]/gi, '').trim()).filter(t=>t).join(" ➔ ");
             document.getElementById('day-header-desc').textContent = routeText || "無路線資訊";
 
@@ -526,12 +541,9 @@
             currentDay.items.forEach((item, idx) => {
                 container.innerHTML += `
                     <div class="relative pl-12 pb-2">
-                        <!-- 時間區塊：固定在左側 -->
                         <div class="absolute left-0 top-3 text-amber-600 font-black text-sm text-right w-10 leading-none">${item.time}</div>
-                        <!-- 時間軸的圓點 -->
                         <div class="absolute left-[41.5px] top-4 w-2 h-2 rounded-full bg-slate-300 border border-white shadow-sm z-10"></div>
                         
-                        <!-- 內容卡片 -->
                         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 ml-3 hover:border-blue-200 transition-colors">
                             <div class="flex justify-between items-start mb-2">
                                 <h4 class="font-bold text-slate-800 text-base">${item.title}</h4>
@@ -540,7 +552,6 @@
                             
                             ${item.desc ? `<p class="text-sm text-slate-500 mb-3 whitespace-pre-line">${item.desc}</p>` : ''}
                             
-                            <!-- 底部操作列 (開啟地圖 & 費用) -->
                             <div class="flex items-center space-x-3 mt-3 pt-3 border-t border-slate-50">
                                 <button onclick="openMapSearch('${item.title}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center transition-colors">
                                     <span class="text-rose-500 mr-1.5 text-sm">📍</span> 開啟地圖
@@ -553,11 +564,136 @@
                     </div>`;
             });
         }
+        
+        function toggleOverviewEditMode() {
+            isOverviewEditMode = !isOverviewEditMode;
+            if(!isOverviewEditMode) { saveLocal(); }
+            renderOverview();
+        }
+
+        function updateFlightDetail(type, field, val) { recordStateForUndo(); getCurrentTrip().flightDetails[type][field] = val; }
+        function updateHotelDetail(index, field, val) { recordStateForUndo(); getCurrentTrip().hotels[index][field] = val; }
+        function addHotel() { recordStateForUndo(); getCurrentTrip().hotels.push({name: "新住宿飯店", dates: "日期", address: "飯店完整地址"}); renderOverview(); }
+        function removeHotel(index) { recordStateForUndo(); getCurrentTrip().hotels.splice(index, 1); renderOverview(); }
 
         function renderOverview() {
             const trip = getCurrentTrip();
-            document.getElementById('overview-flight-details').innerHTML = `<div class="bg-slate-50 p-3 rounded-xl border">${trip.flight}</div>`;
-            document.getElementById('overview-hotel-details').innerHTML = `<div class="bg-slate-50 p-3 rounded-xl border font-bold">${trip.hotel}</div>`;
+            const container = document.getElementById('overview-container');
+            const f = trip.flightDetails;
+            const h = trip.hotels;
+
+            let html = '';
+            
+            html += `
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
+                <div class="bg-indigo-50/50 px-5 py-3 border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center space-x-2 text-indigo-900 font-bold">
+                        <i class="fa-solid fa-plane-departure text-indigo-500 text-lg"></i><span>航班資訊</span>
+                    </div>
+                    <button onclick="toggleOverviewEditMode()" class="text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${isOverviewEditMode ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                        ${isOverviewEditMode ? '<i class="fa-solid fa-check mr-1"></i>完成編輯' : '<i class="fa-solid fa-pen mr-1"></i>編輯'}
+                    </button>
+                </div>
+                <div class="p-5 space-y-4">
+            `;
+
+            html += `<div class="bg-blue-50/40 rounded-xl p-4 border border-blue-100/50">
+                        <h4 class="font-bold text-blue-900 text-sm mb-3">去程</h4>
+                        <div class="space-y-2 text-xs sm:text-sm">`;
+            if (isOverviewEditMode) {
+                html += `
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">日期/航班</span><input type="text" onchange="updateFlightDetail('outbound', 'date', this.value)" value="${f.outbound.date}" class="border rounded px-2 py-1 w-24"> <input type="text" onchange="updateFlightDetail('outbound', 'airline', this.value)" value="${f.outbound.airline}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">路線</span><input type="text" onchange="updateFlightDetail('outbound', 'route', this.value)" value="${f.outbound.route}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">起飛</span><input type="text" onchange="updateFlightDetail('outbound', 'depTime', this.value)" value="${f.outbound.depTime}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">抵達</span><input type="text" onchange="updateFlightDetail('outbound', 'arrTime', this.value)" value="${f.outbound.arrTime}" class="border rounded px-2 py-1 flex-1"></div>
+                `;
+            } else {
+                html += `
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">日期/航班</span><span class="font-bold text-slate-800">${f.outbound.date} ${f.outbound.airline}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">路線</span><span class="font-bold text-slate-800">${f.outbound.route}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">起飛</span><span class="font-bold text-slate-800">${f.outbound.depTime}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">抵達</span><span class="font-bold text-slate-800">${f.outbound.arrTime}</span></div>
+                    <div class="mt-3 flex flex-wrap gap-2 pt-1">
+                        <button onclick="openFlightStatus('${f.outbound.airline}')" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center shadow-sm transition-colors"><span class="mr-1.5 text-sm">🔍</span>航班動態</button>
+                        <button onclick="openAirportMap('${f.outbound.route}', 'dep')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center transition-colors"><span class="mr-1.5 text-sm">🛫</span>導航出發機場</button>
+                        <button onclick="openAirportMap('${f.outbound.route}', 'arr')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center transition-colors"><span class="mr-1.5 text-sm">🛬</span>導航抵達機場</button>
+                    </div>
+                `;
+            }
+            html += `</div></div>`;
+
+            html += `<div class="px-5 pb-5 space-y-4">
+                        <div class="bg-blue-50/40 rounded-xl p-4 border border-blue-100/50">
+                        <h4 class="font-bold text-blue-900 text-sm mb-3">回程</h4>
+                        <div class="space-y-2 text-xs sm:text-sm">`;
+            if (isOverviewEditMode) {
+                html += `
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">日期/航班</span><input type="text" onchange="updateFlightDetail('inbound', 'date', this.value)" value="${f.inbound.date}" class="border rounded px-2 py-1 w-24"> <input type="text" onchange="updateFlightDetail('inbound', 'airline', this.value)" value="${f.inbound.airline}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">路線</span><input type="text" onchange="updateFlightDetail('inbound', 'route', this.value)" value="${f.inbound.route}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">起飛</span><input type="text" onchange="updateFlightDetail('inbound', 'depTime', this.value)" value="${f.inbound.depTime}" class="border rounded px-2 py-1 flex-1"></div>
+                    <div class="flex items-center gap-2"><span class="text-slate-500 w-16">抵達</span><input type="text" onchange="updateFlightDetail('inbound', 'arrTime', this.value)" value="${f.inbound.arrTime}" class="border rounded px-2 py-1 flex-1"></div>
+                `;
+            } else {
+                html += `
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">日期/航班</span><span class="font-bold text-slate-800">${f.inbound.date} ${f.inbound.airline}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">路線</span><span class="font-bold text-slate-800">${f.inbound.route}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">起飛</span><span class="font-bold text-slate-800">${f.inbound.depTime}</span></div>
+                    <div class="border-t border-dashed border-blue-200/60 my-1.5"></div>
+                    <div class="flex"><span class="text-slate-500 w-20 shrink-0">抵達</span><span class="font-bold text-slate-800">${f.inbound.arrTime}</span></div>
+                    <div class="mt-3 flex flex-wrap gap-2 pt-1">
+                        <button onclick="openFlightStatus('${f.inbound.airline}')" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center shadow-sm transition-colors"><span class="mr-1.5 text-sm">🔍</span>航班動態</button>
+                        <button onclick="openAirportMap('${f.inbound.route}', 'dep')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center transition-colors"><span class="mr-1.5 text-sm">🛫</span>導航出發機場</button>
+                        <button onclick="openAirportMap('${f.inbound.route}', 'arr')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center transition-colors"><span class="mr-1.5 text-sm">🛬</span>導航抵達機場</button>
+                    </div>
+                `;
+            }
+            html += `</div></div></div>`;
+
+            html += `
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
+                <div class="bg-amber-50/50 px-5 py-3 border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center space-x-2 text-amber-900 font-bold">
+                        <i class="fa-solid fa-hotel text-amber-500 text-lg"></i><span>住宿一覽</span>
+                    </div>
+                    ${!isOverviewEditMode ? `<button onclick="toggleOverviewEditMode()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors"><i class="fa-solid fa-pen mr-1"></i>編輯</button>` : ''}
+                </div>
+                <div class="p-5 space-y-5">
+            `;
+
+            h.forEach((hotel, idx) => {
+                if (isOverviewEditMode) {
+                    html += `
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 relative">
+                            <button onclick="removeHotel(${idx})" class="absolute top-2 right-2 text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                            <input type="text" onchange="updateHotelDetail(${idx}, 'dates', this.value)" value="${hotel.dates}" placeholder="日期天數 (例: 2/4~2/6 (3晚))" class="w-full border rounded px-2 py-1 text-xs">
+                            <input type="text" onchange="updateHotelDetail(${idx}, 'name', this.value)" value="${hotel.name}" placeholder="飯店名稱" class="w-full border rounded px-2 py-1 text-sm font-bold">
+                            <input type="text" onchange="updateHotelDetail(${idx}, 'address', this.value)" value="${hotel.address}" placeholder="完整地址" class="w-full border rounded px-2 py-1 text-xs">
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div>
+                            <div class="text-slate-600 text-xs mb-0.5">${hotel.dates}：<span class="font-bold text-slate-800 text-sm">${hotel.name}</span></div>
+                            <div class="text-slate-500 text-xs mb-2">地址：${hotel.address}</div>
+                            <button onclick="openMapSearch('${hotel.name} ${hotel.address}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center w-fit transition-colors">
+                                <span class="text-rose-500 mr-1.5 text-sm">📍</span> 開啟地圖
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+
+            if (isOverviewEditMode) {
+                html += `<button onclick="addHotel()" class="w-full py-2 bg-white border-2 border-dashed border-amber-300 text-amber-600 font-bold text-xs rounded-xl hover:bg-amber-50 transition-colors"><i class="fa-solid fa-plus mr-1"></i>新增住宿</button>`;
+            }
+
+            html += `</div></div>`;
+            container.innerHTML = html;
         }
 
         function renderTickets() {
@@ -614,7 +750,7 @@
                 html += `
                     <div class="flex items-center justify-between p-2 border-b border-slate-100 last:border-0">
                         <label class="flex items-center space-x-3 cursor-pointer flex-1">
-                            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="togglePack(${i})" class="w-4 h-4 text-blue-900 rounded">
+                            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="togglePack(${i})" class="w-4 h-4 text-blue-900 rounded border-gray-300 focus:ring-blue-900">
                             <span class="text-sm ${item.checked ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}">${item.name}</span>
                         </label>
                         <button onclick="deletePack(${i})" class="text-slate-300 hover:text-rose-500"><i class="fa-solid fa-trash text-xs"></i></button>
@@ -624,13 +760,16 @@
             container.innerHTML = `
                 <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3">
-                        <h2 class="font-bold text-slate-800">🎒 行李清單</h2>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-rose-500 text-lg">🎒</span>
+                            <h2 class="font-bold text-slate-800">行前準備 / 行李清單</h2>
+                        </div>
                         <span class="text-xs font-bold text-blue-900 bg-blue-50 px-3 py-1 rounded-full">${checked}/${total} 完成</span>
                     </div>
                     <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full transition-all" style="width: ${pct}%"></div></div>
                     <div class="space-y-1">${html}</div>
                     <div class="flex space-x-2 pt-2">
-                        <input type="text" id="new-pack" placeholder="新增項目..." class="flex-1 border rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500">
+                        <input type="text" id="new-pack" placeholder="新增清單項目..." class="flex-1 border rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500">
                         <button onclick="addPack()" class="bg-blue-900 hover:bg-blue-800 text-white font-bold text-sm px-4 py-2 rounded-xl transition-colors">新增</button>
                     </div>
                 </div>`;
@@ -666,12 +805,12 @@
             bar.className = `h-full transition-all duration-300 ${pct > 100 ? 'bg-rose-500' : pct > 80 ? 'bg-amber-500' : 'bg-blue-600'}`;
 
             document.getElementById('category-breakdown-list').innerHTML = `
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">機票</span><span class="font-bold">NT$${fTotal.toLocaleString()}</span></div>
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">購物</span><span class="font-bold">NT$${sTotal.toLocaleString()}</span></div>
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">景點門票</span><span class="font-bold">NT$${aTotal.toLocaleString()}</span></div>
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">行程/餐飲花費</span><span class="font-bold">NT$${dTotal.toLocaleString()}</span></div>
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">交通</span><span class="font-bold">NT$${tTotal.toLocaleString()}</span></div>
-                <div class="py-2.5 flex justify-between"><span class="text-slate-700">住宿</span><span class="font-bold">NT$${hTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">機票</span><span class="font-bold text-slate-800">NT$${fTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">購物</span><span class="font-bold text-slate-800">NT$${sTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">景點門票</span><span class="font-bold text-slate-800">NT$${aTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">行程/餐飲花費</span><span class="font-bold text-slate-800">NT$${dTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">交通</span><span class="font-bold text-slate-800">NT$${tTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between"><span class="text-slate-700">住宿</span><span class="font-bold text-slate-800">NT$${hTotal.toLocaleString()}</span></div>
             `;
         }
 
@@ -689,7 +828,7 @@
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
         function saveModalItem() {
             recordStateForUndo();
-            getCurrentTrip().days[getCurrentTrip().activeDayIndex].items.push({
+            getCurrentTrip().days[getCurrentTrip().activeDayIndex || 0].items.push({
                 time: document.getElementById('modal-time').value || "隨時",
                 title: document.getElementById('modal-item-title').value || "新項目",
                 desc: document.getElementById('modal-desc').value || "",
@@ -697,7 +836,7 @@
             });
             saveLocal(); closeModal(); renderTimeline(); renderBudget();
         }
-        function deleteItem(idx) { recordStateForUndo(); getCurrentTrip().days[getCurrentTrip().activeDayIndex].items.splice(idx, 1); saveLocal(); renderTimeline(); renderBudget(); }
+        function deleteItem(idx) { recordStateForUndo(); getCurrentTrip().days[getCurrentTrip().activeDayIndex || 0].items.splice(idx, 1); saveLocal(); renderTimeline(); renderBudget(); }
     </script>
 </body>
 </html>
