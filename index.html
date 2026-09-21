@@ -2,13 +2,22 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>巴黎與多國行程 2027</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        
+        /* 嚴格防止水平捲動與跑版 (Fix for crooked screen) */
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f8fafc;
+            overscroll-behavior-y: none; /* 防止 iOS 橡皮筋效應干擾 */
+        }
+
         .tab-active { background-color: #e0e7ff; color: #4338ca; font-weight: bold; border: 2px solid #312e81; }
         .tab-inactive { background-color: white; color: #64748b; font-weight: normal; border: 2px solid transparent; }
         
@@ -19,45 +28,46 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Drag and Drop styles */
-        .dragging { opacity: 0.5; }
-        .drop-zone { border-top: 2px dashed #6366f1; margin-top: -2px; }
+        .dragging { opacity: 0.4; transform: scale(0.98); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+        .drop-zone { border-top: 3px dashed #6366f1; margin-top: -3px; }
         
         /* Hide scrollbar utility class */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="text-slate-800 pb-20">
+<body class="text-slate-800 pb-24 w-full">
 
     <header class="bg-indigo-900 text-white p-4 shadow-lg sticky top-0 z-40">
-        <div class="max-w-4xl mx-auto flex flex-col space-y-3">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="bg-amber-400 text-indigo-900 font-extrabold px-2 py-1 rounded text-sm">FR</span>
-                    <select id="trip-selector" onchange="switchTrip()" class="bg-indigo-800/80 border border-indigo-700 text-white font-bold text-lg rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer">
+        <div class="max-w-4xl mx-auto flex flex-col space-y-3 w-full">
+            <div class="flex justify-between items-center w-full">
+                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                    <span class="bg-amber-400 text-indigo-900 font-extrabold px-2 py-1 rounded text-sm flex-shrink-0">FR</span>
+                    <select id="trip-selector" onchange="switchTrip()" class="bg-indigo-800/80 border border-indigo-700 text-white font-bold text-base sm:text-lg rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer w-full max-w-[200px] truncate">
                         <option value="paris">巴黎 Bonjour 2027</option>
                     </select>
                 </div>
-                <div class="flex space-x-2">
-                    <button onclick="createNewTrip()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition-colors flex items-center">
-                        ➕ 新增/複製行程
+                <div class="flex space-x-1.5 flex-shrink-0 ml-2">
+                    <button onclick="createNewTrip()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-lg shadow transition-colors flex items-center">
+                        ➕ <span class="hidden sm:inline ml-1">新增/複製行程</span>
                     </button>
-                    <button onclick="undo()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition-colors flex items-center" title="復原 (Ctrl+Z)">
-                        ↩️ 復原
+                    <button onclick="undo()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-lg shadow transition-colors flex items-center" title="復原 (Ctrl+Z)">
+                        ↩️ <span class="hidden sm:inline ml-1">復原</span>
                     </button>
                 </div>
             </div>
 
             <!-- Sync Controls -->
-            <div class="bg-indigo-950/50 p-2.5 rounded-xl border border-indigo-800/50 flex flex-wrap gap-2 items-center justify-between text-sm">
-                <div class="flex items-center space-x-2 flex-1 min-w-[200px]">
-                    <span class="text-indigo-200 text-xs whitespace-nowrap">🟩 GAS 雲端網址:</span>
-                    <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 bg-indigo-900 border border-indigo-700 rounded px-2 py-1 text-xs text-indigo-100 outline-none focus:border-indigo-400 font-mono">
-                    <button onclick="saveGasUrl()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs transition-colors whitespace-nowrap">儲存網址</button>
+            <div class="bg-indigo-950/50 p-2.5 rounded-xl border border-indigo-800/50 flex flex-col sm:flex-row gap-2 items-center justify-between text-sm w-full">
+                <div class="flex items-center space-x-2 w-full sm:flex-1">
+                    <span class="text-indigo-200 text-xs whitespace-nowrap hidden sm:inline">🟩 GAS 雲端網址:</span>
+                    <span class="text-indigo-200 text-xs whitespace-nowrap sm:hidden">GAS:</span>
+                    <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full sm:flex-1 bg-indigo-900 border border-indigo-700 rounded px-2 py-1 text-xs text-indigo-100 outline-none focus:border-indigo-400 font-mono">
+                    <button onclick="saveGasUrl()" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs transition-colors whitespace-nowrap flex-shrink-0">儲存</button>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex space-x-2 w-full sm:w-auto justify-end">
                     <button onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded-lg text-xs font-bold flex items-center shadow-md transition-all whitespace-nowrap">
-                        🔄 手動同步 (Sync)
+                        🔄 同步 (Sync)
                     </button>
                     <span id="sync-status" class="bg-slate-800/80 px-2 py-1 rounded-full text-[11px] flex items-center text-slate-400 border border-slate-700 whitespace-nowrap">
                         <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span> 尚未綁定雲端
@@ -67,49 +77,50 @@
         </div>
     </header>
 
-    <nav class="max-w-4xl mx-auto mt-4 px-4">
-        <div class="bg-white rounded-2xl shadow-sm p-1.5 flex overflow-x-auto hide-scrollbar space-x-1">
-            <button onclick="switchTab('itinerary')" id="tab-itinerary" class="tab-active flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 whitespace-nowrap">
-                <span class="text-lg">📅</span> <span class="font-bold">每日行程</span>
+    <nav class="max-w-4xl mx-auto mt-4 px-3 sm:px-4 w-full">
+        <div class="bg-white rounded-2xl shadow-sm p-1.5 flex overflow-x-auto hide-scrollbar space-x-1.5 w-full">
+            <button onclick="switchTab('itinerary')" id="tab-itinerary" class="tab-active flex-1 min-w-[90px] py-2.5 px-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                <span class="text-base sm:text-lg">📅</span> <span class="font-bold">每日行程</span>
             </button>
-            <button onclick="switchTab('accommodation')" id="tab-accommodation" class="tab-inactive flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 whitespace-nowrap">
-                <span class="text-lg">✈️</span> <span class="font-bold">航班住宿</span>
+            <button onclick="switchTab('accommodation')" id="tab-accommodation" class="tab-inactive flex-1 min-w-[90px] py-2.5 px-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                <span class="text-base sm:text-lg">✈️</span> <span class="font-bold">航班住宿</span>
             </button>
-            <button onclick="switchTab('tickets')" id="tab-tickets" class="tab-inactive flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 whitespace-nowrap">
-                <span class="text-lg">🎟️</span> <span class="font-bold">門票交通</span>
+            <button onclick="switchTab('tickets')" id="tab-tickets" class="tab-inactive flex-1 min-w-[90px] py-2.5 px-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                <span class="text-base sm:text-lg">🎟️</span> <span class="font-bold">門票交通</span>
             </button>
-            <button onclick="switchTab('packing')" id="tab-packing" class="tab-inactive flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 whitespace-nowrap">
-                <span class="text-lg">🎒</span> <span class="font-bold">行李清單</span>
+            <button onclick="switchTab('packing')" id="tab-packing" class="tab-inactive flex-1 min-w-[90px] py-2.5 px-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                <span class="text-base sm:text-lg">🎒</span> <span class="font-bold">行李清單</span>
             </button>
-            <button onclick="switchTab('budget')" id="tab-budget" class="tab-inactive flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-sm transition-all flex items-center justify-center space-x-2 whitespace-nowrap">
-                <span class="text-lg">💰</span> <span class="font-bold">預算</span>
+            <button onclick="switchTab('budget')" id="tab-budget" class="tab-inactive flex-1 min-w-[90px] py-2.5 px-2 rounded-xl text-xs sm:text-sm transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+                <span class="text-base sm:text-lg">💰</span> <span class="font-bold">預算</span>
             </button>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto mt-6 px-4">
+    <main class="max-w-4xl mx-auto mt-6 px-3 sm:px-4 w-full">
         
         <!-- Tab: Itinerary (每日行程) -->
-        <div id="view-itinerary" class="space-y-6">
+        <div id="view-itinerary" class="space-y-6 w-full">
             <!-- Day Selector -->
-            <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar">
+            <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full">
                 <!-- Generated by JS -->
             </div>
             
-            <div class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm">
+            <div class="bg-white rounded-3xl p-4 sm:p-8 shadow-sm w-full overflow-hidden">
                 <!-- Day Header & Navigation -->
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6">
-                    <div>
-                        <h2 id="day-title" class="text-2xl font-black text-slate-800"></h2>
-                        <p id="day-subtitle" class="text-slate-500 text-sm mt-1.5 leading-relaxed"></p>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6 w-full">
+                    <div class="flex-1 w-full">
+                        <h2 id="day-title" class="text-xl sm:text-2xl font-black text-slate-800 leading-tight"></h2>
+                        <p id="day-subtitle" class="text-slate-500 text-xs sm:text-sm mt-1.5 leading-relaxed"></p>
                     </div>
-                    <button onclick="openDailyRouteMap()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center space-x-2 whitespace-nowrap flex-shrink-0">
+                    <button onclick="openDailyRouteMap()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-3 sm:py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 whitespace-nowrap flex-shrink-0">
                         <span class="text-lg">🧭</span> <span>開啟今日路線導航</span>
                     </button>
                 </div>
                 
-                <!-- 精確對齊的時間軸容器：使用 ml-7 與 ml-8 進行基礎偏移 -->
-                <div id="timeline" class="relative border-l-2 border-slate-200 ml-7 sm:ml-8 pb-6 space-y-6 mt-4">
+                <!-- 精確對齊的時間軸容器 -->
+                <!-- ml-7 sm:ml-8 設定了軸線的位置。卡片是相對於這條軸線去生長的。 -->
+                <div id="timeline" class="relative border-l-2 border-slate-200 ml-[80px] sm:ml-24 pb-6 space-y-6 mt-4 w-[calc(100%-80px)] sm:w-[calc(100%-96px)]">
                     <!-- Items generated by JS -->
                 </div>
                 
@@ -120,18 +131,18 @@
         </div>
 
         <!-- Tab: Accommodation & Flights (航班住宿) -->
-        <div id="view-accommodation" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="view-accommodation" class="hidden space-y-6 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <!-- Flight Info -->
-                <div class="bg-white rounded-3xl p-6 shadow-sm relative group">
-                    <button onclick="editFlightInfo()" class="absolute top-5 right-5 text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 p-2 rounded-lg opacity-100 sm:opacity-0 group-hover:opacity-100" title="編輯航班">✏️</button>
+                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm relative group w-full">
+                    <button onclick="editFlightInfo()" class="absolute top-4 right-4 text-slate-400 hover:text-blue-600 transition-colors bg-slate-50 p-2 rounded-lg opacity-100 sm:opacity-0 group-hover:opacity-100 shadow-sm border border-slate-100" title="編輯航班">✏️</button>
                     <h3 class="font-black text-lg text-slate-800 mb-5 flex items-center"><span class="text-xl mr-2 text-blue-500">✈️</span> 航班資訊</h3>
                     
                     <div id="flight-display" class="space-y-4">
                         <!-- Outbound -->
-                        <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100">
+                        <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 relative">
                             <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded text-center mb-3 inline-block">去程</span>
-                            <div class="grid grid-cols-[80px_1fr] gap-y-2 text-sm">
+                            <div class="grid grid-cols-[70px_1fr] sm:grid-cols-[80px_1fr] gap-y-2 text-xs sm:text-sm">
                                 <div class="text-slate-500">日期/航班</div><div class="font-medium text-slate-800" id="flight-out-date"></div>
                                 <div class="col-span-2 border-t border-blue-100/50 my-1 border-dashed"></div>
                                 <div class="text-slate-500">路線</div>
@@ -143,13 +154,15 @@
                                 <div class="text-slate-500">起飛</div><div class="font-medium text-slate-800" id="flight-out-dept"></div>
                                 <div class="text-slate-500">抵達</div><div class="font-medium text-slate-800" id="flight-out-arr"></div>
                             </div>
-                            <button onclick="searchFlightStatus('out')" class="mt-3 w-full bg-white border border-blue-200 text-blue-600 text-xs font-bold py-2 rounded-xl hover:bg-blue-50 transition-colors">🔎 追蹤航班動態</button>
+                            <button onclick="searchFlightStatus('out')" class="mt-4 w-full bg-white border border-blue-200 text-blue-600 text-xs font-bold py-2 rounded-xl hover:bg-blue-50 transition-colors flex items-center justify-center shadow-sm">
+                                <span>🔎 追蹤航班動態</span>
+                            </button>
                         </div>
                         
                         <!-- Inbound -->
-                        <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100">
+                        <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 relative">
                             <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded text-center mb-3 inline-block">回程</span>
-                            <div class="grid grid-cols-[80px_1fr] gap-y-2 text-sm">
+                            <div class="grid grid-cols-[70px_1fr] sm:grid-cols-[80px_1fr] gap-y-2 text-xs sm:text-sm">
                                 <div class="text-slate-500">日期/航班</div><div class="font-medium text-slate-800" id="flight-in-date"></div>
                                 <div class="col-span-2 border-t border-blue-100/50 my-1 border-dashed"></div>
                                 <div class="text-slate-500">路線</div>
@@ -161,16 +174,18 @@
                                 <div class="text-slate-500">起飛</div><div class="font-medium text-slate-800" id="flight-in-dept"></div>
                                 <div class="text-slate-500">抵達</div><div class="font-medium text-slate-800" id="flight-in-arr"></div>
                             </div>
-                            <button onclick="searchFlightStatus('in')" class="mt-3 w-full bg-white border border-blue-200 text-blue-600 text-xs font-bold py-2 rounded-xl hover:bg-blue-50 transition-colors">🔎 追蹤航班動態</button>
+                            <button onclick="searchFlightStatus('in')" class="mt-4 w-full bg-white border border-blue-200 text-blue-600 text-xs font-bold py-2 rounded-xl hover:bg-blue-50 transition-colors flex items-center justify-center shadow-sm">
+                                <span>🔎 追蹤航班動態</span>
+                            </button>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Accommodation Info -->
-                <div class="bg-white rounded-3xl p-6 shadow-sm">
+                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                     <div class="flex justify-between items-center mb-5">
                         <h3 class="font-black text-lg text-slate-800 flex items-center"><span class="text-xl mr-2 text-amber-500">🏨</span> 住宿一覽</h3>
-                        <button onclick="addHotel()" class="text-xs bg-amber-50 text-amber-600 hover:bg-amber-100 px-3 py-1.5 rounded-lg font-bold transition-colors">➕ 新增住宿</button>
+                        <button onclick="addHotel()" class="text-[11px] sm:text-xs bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 px-3 py-1.5 rounded-lg font-bold transition-colors shadow-sm">➕ 新增住宿</button>
                     </div>
                     <div id="hotel-list" class="space-y-4">
                         <!-- Hotels generated by JS -->
@@ -180,30 +195,30 @@
         </div>
 
         <!-- Tab: Tickets (門票交通) -->
-        <div id="view-tickets" class="hidden space-y-6">
-            <div class="bg-white rounded-3xl p-6 shadow-sm">
+        <div id="view-tickets" class="hidden space-y-6 w-full">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
                     <h3 class="font-bold text-lg text-slate-800 flex items-center"><span class="mr-2">🎟️</span> 票券與交通待辦</h3>
-                    <span id="ticket-count" class="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full">共 0 項</span>
+                    <span id="ticket-count" class="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full whitespace-nowrap">共 0 項</span>
                 </div>
                 
-                <div id="ticket-list" class="space-y-3 mb-4">
+                <div id="ticket-list" class="space-y-3 mb-5 w-full">
                     <!-- Ticket items -->
                 </div>
                 
-                <div class="flex space-x-2">
-                    <input type="text" id="new-ticket-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition-colors text-sm" placeholder="新增門票或交通卡...">
-                    <button onclick="addTicket()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 rounded-xl transition-colors">新增</button>
+                <div class="flex space-x-2 w-full">
+                    <input type="text" id="new-ticket-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm w-full" placeholder="新增門票或交通卡...">
+                    <button onclick="addTicket()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
             </div>
         </div>
 
         <!-- Tab: Packing List (行李清單) -->
-        <div id="view-packing" class="hidden space-y-6">
-            <div class="bg-white rounded-3xl p-6 shadow-sm">
+        <div id="view-packing" class="hidden space-y-6 w-full">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
                     <h3 class="font-bold text-lg text-slate-800 flex items-center"><span class="mr-2">🎒</span> 行前準備 / 行李清單</h3>
-                    <span id="packing-progress" class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full">0/0 完成</span>
+                    <span id="packing-progress" class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full whitespace-nowrap">0/0 完成</span>
                 </div>
                 
                 <!-- Progress Bar -->
@@ -211,22 +226,22 @@
                     <div id="packing-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                 </div>
 
-                <div id="packing-list" class="space-y-2 mb-6">
+                <div id="packing-list" class="space-y-2 mb-6 w-full">
                     <!-- Packing items -->
                 </div>
                 
-                <div class="flex space-x-2">
-                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition-colors text-sm" placeholder="新增清單項目...">
-                    <button onclick="addPackingItem()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold px-6 rounded-xl transition-colors">新增</button>
+                <div class="flex space-x-2 w-full">
+                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm w-full" placeholder="新增清單項目...">
+                    <button onclick="addPackingItem()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
             </div>
         </div>
 
         <!-- Tab: Budget (預算) -->
-        <div id="view-budget" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="view-budget" class="hidden space-y-6 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <!-- Currency & Total -->
-                <div class="bg-white rounded-3xl p-6 shadow-sm flex flex-col justify-center">
+                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col justify-center w-full">
                     <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                         <h3 class="font-bold text-slate-800 flex items-center"><span class="mr-2 text-xl">💱</span> 匯率設定</h3>
                         <div class="text-sm bg-slate-100 rounded-lg p-1 flex">
@@ -235,30 +250,30 @@
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-4 mb-8">
-                        <div class="text-slate-500 font-medium">1 外幣 =</div>
-                        <input type="number" id="exchange-rate" onchange="calculateBudget()" class="w-24 border border-slate-300 rounded-xl px-3 py-2 text-lg font-bold text-center outline-none focus:border-blue-500 bg-slate-50">
-                        <div class="text-slate-500 font-medium">TWD</div>
+                    <div class="flex items-center space-x-3 mb-8 w-full">
+                        <div class="text-slate-500 font-medium whitespace-nowrap">1 外幣 =</div>
+                        <input type="number" id="exchange-rate" onchange="calculateBudget()" class="w-20 sm:w-24 border border-slate-300 rounded-xl px-2 sm:px-3 py-2 text-base sm:text-lg font-bold text-center outline-none focus:border-blue-500 bg-slate-50">
+                        <div class="text-slate-500 font-medium whitespace-nowrap">TWD</div>
                     </div>
                     
-                    <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200">
+                    <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg shadow-indigo-200">
                         <p class="text-indigo-100 text-sm font-medium mb-1">預估總花費 (TWD)</p>
-                        <div class="text-4xl font-black font-mono tracking-tight" id="total-budget">NT$ 0</div>
-                        <div class="mt-3 text-xs text-indigo-200 bg-black/10 inline-block px-2 py-1 rounded">※ 包含行程內標註金額與門票代辦總和</div>
+                        <div class="text-3xl sm:text-4xl font-black font-mono tracking-tight break-words" id="total-budget">NT$ 0</div>
+                        <div class="mt-3 text-[11px] sm:text-xs text-indigo-200 bg-black/10 inline-block px-2 py-1 rounded w-auto">※ 包含行程內標註金額與門票代辦總和</div>
                     </div>
                 </div>
                 
                 <!-- Category Breakdown -->
-                <div class="bg-white rounded-3xl p-6 shadow-sm">
+                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                     <h3 class="font-bold text-slate-800 mb-5 flex items-center border-b border-slate-100 pb-4"><span class="mr-2 text-xl">📊</span> 分類花費</h3>
-                    <div class="space-y-5">
+                    <div class="space-y-6">
                         <div>
                             <div class="flex justify-between text-sm mb-1.5"><span class="text-slate-500 font-medium">行程/餐飲花費</span><span class="font-bold text-slate-800 font-mono" id="budget-itinerary">NT$ 0</span></div>
-                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width: 50%"></div></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-blue-500 h-2.5 rounded-full" style="width: 50%"></div></div>
                         </div>
                         <div>
                             <div class="flex justify-between text-sm mb-1.5"><span class="text-slate-500 font-medium">票券/交通代辦</span><span class="font-bold text-slate-800 font-mono" id="budget-tickets">NT$ 0</span></div>
-                            <div class="w-full bg-slate-100 rounded-full h-2"><div class="bg-amber-400 h-2 rounded-full" style="width: 30%"></div></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-amber-400 h-2.5 rounded-full" style="width: 30%"></div></div>
                         </div>
                     </div>
                 </div>
@@ -267,66 +282,72 @@
 
     </main>
 
-    <!-- Add/Edit Modal (Bottom-Sheet Style) -->
-    <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-end justify-center sm:items-center sm:p-4 transition-opacity duration-300 opacity-0">
-        <div id="modal-content" class="bg-white rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative flex flex-col">
+    <!-- Bottom-Sheet Modal for Edit/Add -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end transition-opacity duration-300 opacity-0 w-full h-full">
+        <!-- Close overlay -->
+        <div class="absolute inset-0 z-0" onclick="closeModal()"></div>
+        
+        <div id="modal-content" class="bg-white rounded-t-3xl max-w-4xl mx-auto w-full p-5 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative z-10 flex flex-col pb-10">
             
-            <!-- Mobile Drag Handle -->
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2 sm:hidden flex-shrink-0"></div>
+            <!-- Mobile Drag Handle (Visual only) -->
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2 flex-shrink-0"></div>
 
             <div class="flex justify-between items-start mb-2 flex-shrink-0">
-                <div>
-                    <h3 id="modal-title" class="font-black text-2xl text-slate-800">編輯行程項目</h3>
+                <div class="flex-1 pr-4">
+                    <h3 id="modal-title" class="font-black text-xl sm:text-2xl text-slate-800 leading-tight">編輯行程項目</h3>
                     <div id="modal-subtitle" class="text-amber-600 font-bold text-sm mt-1 hidden">🎭 10:30-11:30</div>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-bold px-2 leading-none bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors">&times;</button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-bold px-2 leading-none bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors flex-shrink-0 border border-slate-100 shadow-sm">&times;</button>
             </div>
             
             <input type="hidden" id="modal-edit-index" value="-1">
             
-            <div class="space-y-4 text-sm pb-2 overflow-y-auto hide-scrollbar">
-                <div>
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider">⏰ 時間</label>
-                    <input type="text" id="modal-time" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-base font-medium text-slate-700 bg-slate-50 focus:bg-white" placeholder="10:30-11:30">
+            <div class="space-y-5 text-sm pb-2 overflow-y-auto hide-scrollbar w-full">
+                
+                <div class="grid grid-cols-[100px_1fr] sm:grid-cols-2 gap-4">
+                    <div class="col-span-2 sm:col-span-1">
+                        <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">⏰</span> 時間</label>
+                        <input type="text" id="modal-time" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm sm:text-base font-medium text-slate-700 bg-slate-50 focus:bg-white" placeholder="10:30-11:30">
+                    </div>
+                    
+                    <div class="col-span-2 sm:col-span-1">
+                        <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">💰</span> 預估金額 (TWD)</label>
+                        <input type="number" id="modal-cost" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm sm:text-base font-bold text-slate-800 bg-slate-50 focus:bg-white" placeholder="0">
+                    </div>
                 </div>
                 
                 <div>
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider">標題 / 名稱</label>
-                    <input type="text" id="modal-item-title" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-base font-bold text-slate-800 bg-slate-50 focus:bg-white" placeholder="巴黎歌劇院 Palais Garnier">
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">📍</span> 標題 / 名稱</label>
+                    <input type="text" id="modal-item-title" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm sm:text-base font-bold text-slate-800 bg-slate-50 focus:bg-white" placeholder="巴黎歌劇院 Palais Garnier">
                 </div>
                 
                 <div>
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider">備註</label>
-                    <textarea id="modal-desc" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none h-20 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm text-slate-600 bg-slate-50 focus:bg-white resize-none" placeholder="若進內部參觀請預留時間..."></textarea>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">📝</span> 備註</label>
+                    <textarea id="modal-desc" class="w-full border border-slate-200 rounded-2xl p-3 outline-none h-20 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm text-slate-600 bg-slate-50 focus:bg-white resize-none" placeholder="若進內部參觀請預留時間..."></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-amber-600 font-bold mb-1.5 text-xs tracking-wider flex items-center"><span class="mr-1 text-base">🌟</span> 必看 / 必吃 / 小提醒</label>
-                    <textarea id="modal-tips" class="w-full border border-amber-200 bg-amber-50 rounded-2xl p-3.5 outline-none h-20 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all text-sm text-amber-900 resize-none placeholder-amber-300" placeholder="例如：必點可麗露、記得預約時段..."></textarea>
+                    <label class="block text-amber-600 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">🌟</span> 必看 / 必吃 / 小提醒</label>
+                    <textarea id="modal-tips" class="w-full border border-amber-200 bg-amber-50 rounded-2xl p-3 outline-none h-20 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all text-sm text-amber-900 resize-none placeholder-amber-300" placeholder="例如：必點可麗露、記得預約時段..."></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider flex items-center"><span class="mr-1 text-base">🗺️</span> 地圖關鍵字</label>
-                    <input type="text" id="modal-map-key" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-base text-slate-700 bg-slate-50 focus:bg-white font-mono" placeholder="Palais Garnier Paris">
-                    <p class="text-[11px] text-slate-400 mt-1.5 ml-1">用於產生精準的地圖搜尋與路線導航連結。</p>
-                </div>
-                
-                <div>
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider flex items-center"><span class="mr-1 text-base">💰</span> 預估金額（當地或台幣皆可）</label>
-                    <input type="number" id="modal-cost" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-lg font-bold text-slate-800 bg-slate-50 focus:bg-white" placeholder="0">
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">🗺️</span> 地圖關鍵字</label>
+                    <input type="text" id="modal-map-key" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm sm:text-base text-slate-700 bg-slate-50 focus:bg-white font-mono" placeholder="Palais Garnier Paris">
+                    <p class="text-[10px] sm:text-[11px] text-slate-400 mt-1.5 ml-1 leading-tight">此關鍵字會用於自動產生「開啟地圖」與「路線導航」的網址。</p>
                 </div>
 
-                <div id="modal-move-day-container">
-                    <label class="block text-slate-500 font-bold mb-1.5 text-xs tracking-wider flex items-center"><span class="mr-1 text-base">📅</span> 移動到哪一天</label>
-                    <select id="modal-move-day" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-base font-bold text-slate-700 bg-slate-50 focus:bg-white cursor-pointer appearance-none">
+                <div id="modal-move-day-container" class="pb-2">
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">📅</span> 移動到哪一天</label>
+                    <select id="modal-move-day" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm sm:text-base font-bold text-slate-700 bg-slate-50 focus:bg-white cursor-pointer appearance-none">
                         <!-- Options generated by JS -->
                     </select>
                 </div>
             </div>
             
-            <div class="flex space-x-3 pt-2 flex-shrink-0 bg-white">
-                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors">取消</button>
-                <button onclick="saveModalItem()" class="flex-[2] py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all">儲存更新</button>
+            <div class="flex space-x-3 pt-4 border-t border-slate-100 flex-shrink-0 bg-white w-full">
+                <button onclick="closeModal()" class="flex-1 py-4 sm:py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors shadow-sm">取消</button>
+                <button onclick="saveModalItem()" class="flex-[2] py-4 sm:py-3.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all active:scale-95">儲存更新</button>
             </div>
         </div>
     </div>
@@ -357,26 +378,26 @@
                         { time: "18:30", title: "🍽️ 晚餐：Le Bouillon Chartier", desc: "百年平價法式餐廳", tips: "必點油封鴨 (Confit de Canard) 與法式螺肉", mapKey: "Le Bouillon Chartier", cost: 1200 }
                     ]},
                     { date: "2/5", label: "五", subtitle: "藝術殿堂與左岸咖啡時光", desc: "羅浮宮博物館 ➔ 杜樂麗花園 散步 ➔ 花神咖啡館 ➔ 聖日耳曼德佩區 逛街", items: [
-                        { time: "09:00", title: "🖼️ 羅浮宮博物館 (Musée du Louvre)", desc: "重點觀賞三寶：《蒙娜麗莎》、《勝利女神》、《維納斯》", tips: "入口處安檢較久，建議提前抵達", mapKey: "Louvre Museum", cost: 2000 },
-                        { time: "13:30", title: "🌳 杜樂麗花園 (Jardin des Tuileries)", desc: "散步與休息", mapKey: "Jardin des Tuileries", cost: 0 },
+                        { time: "09:00", title: "🖼️ 羅浮宮博物館", desc: "重點觀賞三寶：《蒙娜麗莎》、《勝利女神》、《維納斯》", tips: "入口處安檢較久，建議提前抵達", mapKey: "Louvre Museum", cost: 2000 },
+                        { time: "13:30", title: "🌳 杜樂麗花園", desc: "散步與休息", mapKey: "Jardin des Tuileries", cost: 0 },
                         { time: "15:00", title: "☕ 花神咖啡館 (Café de Flore)", desc: "體驗左岸人文氣息", tips: "招牌熱巧克力與千層派必點", mapKey: "Café de Flore Paris", cost: 650 },
                         { time: "17:30", title: "🛍️ 聖日耳曼德佩區 逛街與晚餐", desc: "自由逛街與尋找晚餐", mapKey: "Saint-Germain-des-Prés", cost: 1500 }
                     ]},
                     { date: "2/6", label: "六", subtitle: "凡爾賽宮奢華巡禮與瑪黑區文青探索", desc: "凡爾賽宮 & 花園 ➔ 奧塞美術館 ➔ 瑪黑區文青小店巡禮 & 晚餐", items: [
                         { time: "08:30", title: "👑 凡爾賽宮 & 花園", desc: "搭乘 RER C 線直達 Versailles Château", tips: "鏡廳人潮眾多，建議一入內先直奔鏡廳拍照", mapKey: "Palace of Versailles", cost: 1800 },
                         { time: "14:30", title: "🎨 奧塞美術館 (Musée d'Orsay)", desc: "欣賞梵谷、莫內、雷諾瓦等印象派名家畫作", mapKey: "Musée d'Orsay", cost: 1600 },
-                        { time: "18:00", title: "🚶 瑪黑區 (Le Marais) 逛街與晚餐", desc: "文青小店與歷史街區", mapKey: "Le Marais Paris", cost: 1200 }
+                        { time: "18:00", title: "🚶 瑪黑區逛街與晚餐", desc: "文青小店與歷史街區", mapKey: "Le Marais Paris", cost: 1200 }
                     ]},
                     { date: "2/7", label: "日", subtitle: "建築美學、時尚購物與凱旋門夜景", desc: "加尼葉歌劇院 ➔ 老佛爺百貨 & 春天百貨購物 ➔ 香榭麗舍大道 & 凱旋門登頂", items: [
-                        { time: "09:30", title: "🎭 加尼葉歌劇院 (Palais Garnier)", desc: "參觀華麗金碧輝煌的大樓梯與內部", mapKey: "Palais Garnier", cost: 1200 },
+                        { time: "09:30", title: "🎭 加尼葉歌劇院", desc: "參觀華麗金碧輝煌的大樓梯與內部", mapKey: "Palais Garnier", cost: 1200 },
                         { time: "12:30", title: "🛍️ 老佛爺百貨 & 春天百貨購物", desc: "辦理退稅手續", tips: "頂樓觀景台可免費俯瞰巴黎全景", mapKey: "Galeries Lafayette Haussmann", cost: 0 },
                         { time: "17:30", title: "⛩️ 香榭麗舍大道 & 凱旋門登頂", desc: "遠眺 12 條大道交會壯麗夜景", mapKey: "Arc de Triomphe", cost: 1100 }
                     ]},
                     { date: "2/8", label: "一", subtitle: "印象派光影與西堤島人文歷史", desc: "橘園美術館 ➔ 莎士比亞書店 ➔ 巴黎聖母院 ➔ 龐畢度中心", items: [
-                        { time: "10:00", title: "🖼️ 橘園美術館 (Musée de l'Orangerie)", desc: "欣賞莫內 360 度環景巨幅《睡蓮》", mapKey: "Musée de l'Orangerie", cost: 1100 },
+                        { time: "10:00", title: "🖼️ 橘園美術館", desc: "欣賞莫內 360 度環景巨幅《睡蓮》", mapKey: "Musée de l'Orangerie", cost: 1100 },
                         { time: "12:30", title: "📚 莎士比亞書店 & 左岸舊書攤", desc: "著名英文書店", mapKey: "Shakespeare and Company Paris", cost: 0 },
-                        { time: "14:30", title: "⛪ 巴黎聖母院 (Notre-Dame) 外圍", desc: "西堤島散步", mapKey: "Notre-Dame de Paris", cost: 0 },
-                        { time: "17:00", title: "🏢 龐畢度中心 (Centre Pompidou)", desc: "現代藝術展與建築外觀", mapKey: "Centre Pompidou", cost: 0 }
+                        { time: "14:30", title: "⛪ 巴黎聖母院外圍 & 西堤島", desc: "西堤島散步", mapKey: "Notre-Dame de Paris", cost: 0 },
+                        { time: "17:00", title: "🏢 龐畢度中心", desc: "現代藝術展與建築外觀", mapKey: "Centre Pompidou", cost: 0 }
                     ]},
                     { date: "2/9", label: "二", subtitle: "離懷巴黎・前往戴高樂機場", desc: "退房並出發前往機場 ➔ 辦理退稅、Check-in 與登機", items: [
                         { time: "08:00", title: "🎒 退房前往機場", desc: "搭乘 RER B 或預約專車前往 CDG 機場", mapKey: "CDG Airport", cost: 600 },
@@ -519,8 +540,8 @@
             trip.days.forEach((day, index) => {
                 const isActive = index === (trip.activeDayIndex || 0);
                 const btn = document.createElement('button');
-                btn.className = `min-w-[70px] py-2 px-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isActive ? 'bg-indigo-800 text-white shadow-md transform scale-105' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'}`;
-                btn.innerHTML = `<span class="text-xs font-bold mb-1">${day.label}</span><span class="${isActive ? 'text-lg font-black' : 'text-sm font-bold'}">${day.date}</span>`;
+                btn.className = `min-w-[65px] sm:min-w-[70px] py-2 px-2 sm:px-3 rounded-2xl flex flex-col items-center justify-center transition-all ${isActive ? 'bg-indigo-800 text-white shadow-md transform scale-105' : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-100'}`;
+                btn.innerHTML = `<span class="text-[11px] sm:text-xs font-bold mb-1">${day.label}</span><span class="${isActive ? 'text-base sm:text-lg font-black' : 'text-sm font-bold'}">${day.date}</span>`;
                 btn.onclick = () => {
                     trip.activeDayIndex = index;
                     saveLocal();
@@ -552,12 +573,12 @@
                 
                 itemEl.addEventListener('dragstart', (e) => {
                     draggedItemIndex = index;
-                    setTimeout(() => itemEl.classList.add('opacity-40'), 0);
+                    setTimeout(() => itemEl.classList.add('dragging'), 0);
                     e.dataTransfer.effectAllowed = 'move';
                 });
                 itemEl.addEventListener('dragend', () => {
                     draggedItemIndex = null;
-                    itemEl.classList.remove('opacity-40');
+                    itemEl.classList.remove('dragging');
                     document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('drop-zone'));
                 });
                 itemEl.addEventListener('dragover', (e) => {
@@ -582,56 +603,55 @@
                     }
                 });
 
-                // EXACT MATHEMATICAL ALIGNMENT USING STANDARD TAILWIND PADDING/MARGIN OFFSETS
-                // Timeline parent has ml-7 (28px). White box padding is p-5 (20px).
-                // Target: -20px from padding edge = left edge of white box = perfect alignment.
-                // Text offset required: -48px (-left-12) to hit -20px. Text width: 44px (w-11).
+                // EXACT MATHEMATICAL ALIGNMENT TO LEFT EDGE OF CONTAINER
+                // Timeline container has ml-[80px]. This point is X=0 relative to the container.
+                // Text needs to start exactly 80px to the left of X=0, which means left: -80px.
                 
                 let htmlStr = `
-                    <div class="absolute top-6 w-4 h-4 rounded-full border-[4px] border-white bg-indigo-500 shadow-sm z-10 transition-transform group-hover:scale-125" style="left: -7px;"></div>
+                    <div class="absolute top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-[3px] sm:border-[4px] border-white bg-indigo-500 shadow-sm z-10 transition-transform group-hover:scale-125" style="left: -6px; sm:left: -8px;"></div>
                     
-                    <div class="absolute -left-12 sm:-left-16 top-5 w-11 sm:w-14 text-left text-[13.5px] sm:text-[14px] font-black text-amber-600 tracking-tighter">${item.time || ''}</div>
+                    <div class="absolute left-[-80px] sm:left-[-96px] top-[1.125rem] w-[70px] sm:w-[80px] text-left text-[13.5px] sm:text-[14px] font-black text-amber-600 tracking-tighter">${item.time || ''}</div>
                     
-                    <div class="ml-4 sm:ml-6 bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition-all relative flex flex-col sm:flex-row gap-4 sm:items-start group-hover:border-indigo-100">
+                    <div class="ml-2 sm:ml-6 bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition-all relative flex flex-col gap-3 group-hover:border-indigo-100 overflow-hidden w-full">
                         
-                        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-1 sm:pr-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex text-slate-300">
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex text-slate-300">
                             <span class="text-xl font-bold cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500">⋮⋮</span>
                         </div>
 
-                        <div class="flex-1 w-full">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-black text-slate-800 text-lg flex-1 pr-2 leading-tight">${item.title}</h4>
-                                <div class="flex items-center space-x-1 sm:space-x-2 -mt-1 -mr-2 sm:mr-0 flex-shrink-0">
-                                    <button onclick="editItem(${index})" class="text-slate-300 hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-slate-50" title="編輯">✏️</button>
-                                    <button onclick="deleteItem(${index})" class="text-slate-300 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-slate-50" title="刪除">🗑️</button>
+                        <div class="flex-1 w-full flex flex-col">
+                            <div class="flex justify-between items-start mb-1 w-full">
+                                <h4 class="font-black text-slate-800 text-[15px] sm:text-lg flex-1 pr-2 leading-tight break-words">${item.title}</h4>
+                                <div class="flex items-center space-x-0.5 sm:space-x-1 -mt-1 -mr-2 flex-shrink-0">
+                                    <button onclick="editItem(${index})" class="text-slate-300 hover:text-blue-500 transition-colors p-1.5 sm:p-2 rounded-lg hover:bg-slate-50" title="編輯">✏️</button>
+                                    <button onclick="deleteItem(${index})" class="text-slate-300 hover:text-red-500 transition-colors p-1.5 sm:p-2 rounded-lg hover:bg-slate-50" title="刪除">🗑️</button>
                                 </div>
                             </div>
                 `;
 
                 if (item.desc) {
-                    htmlStr += `<p class="text-sm text-slate-500 mt-2 whitespace-pre-line leading-relaxed">${item.desc}</p>`;
+                    htmlStr += `<p class="text-[13px] sm:text-sm text-slate-500 mt-1 whitespace-pre-line leading-relaxed break-words pr-2">${item.desc}</p>`;
                 }
                 
                 if (item.tips) {
                     htmlStr += `
-                    <div class="mt-3 bg-amber-50/70 rounded-2xl p-3 border border-amber-100/50 relative overflow-hidden">
+                    <div class="mt-3 bg-amber-50/70 rounded-2xl p-3 border border-amber-100/50 relative overflow-hidden w-full">
                         <div class="absolute -right-2 -top-2 text-4xl opacity-10">🌟</div>
-                        <p class="text-sm text-amber-900 font-bold flex items-start leading-relaxed relative z-10">
-                            <span class="mr-2 text-base shadow-sm">🌟</span>
-                            <span>${item.tips.replace(/\n/g, '<br>')}</span>
+                        <p class="text-[12px] sm:text-sm text-amber-900 font-bold flex items-start leading-relaxed relative z-10">
+                            <span class="mr-1.5 sm:mr-2 text-sm sm:text-base shadow-sm">🌟</span>
+                            <span class="break-words flex-1">${item.tips.replace(/\n/g, '<br>')}</span>
                         </p>
                     </div>`;
                 }
                 
                 htmlStr += `
-                            <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-50">
-                                <button onclick="openMapSearch('${(item.mapKey || item.title).replace(/'/g, "\\'")}')" class="bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center transition-colors shadow-sm">
+                            <div class="flex flex-wrap items-center gap-2 mt-3 sm:mt-4 pt-3 border-t border-slate-50 w-full">
+                                <button onclick="openMapSearch('${(item.mapKey || item.title).replace(/'/g, "\\'")}')" class="bg-indigo-50/80 hover:bg-indigo-100 text-indigo-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center transition-colors shadow-sm whitespace-nowrap">
                                     📍 開啟地圖
                                 </button>
                 `;
                 
                 if (item.cost > 0) {
-                    htmlStr += `<span class="bg-amber-50 text-amber-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center shadow-sm">💰 NT$${item.cost}</span>`;
+                    htmlStr += `<span class="bg-amber-50 text-amber-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center shadow-sm whitespace-nowrap">💰 NT$${item.cost}</span>`;
                 }
                 
                 htmlStr += `
@@ -704,6 +724,7 @@
             void modal.offsetWidth; 
             modal.classList.remove('opacity-0');
             content.classList.remove('translate-y-full');
+            document.body.style.overflow = 'hidden'; // 防止背景捲動
         }
 
         function closeModal() {
@@ -711,6 +732,7 @@
             const content = document.getElementById('modal-content');
             modal.classList.add('opacity-0');
             content.classList.add('translate-y-full');
+            document.body.style.overflow = ''; // 恢復背景捲動
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
@@ -781,13 +803,14 @@
             hotelList.innerHTML = '';
             trip.hotels.forEach((hotel, idx) => {
                 hotelList.innerHTML += `
-                    <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100 group relative">
-                        <button onclick="editHotel(${idx})" class="absolute top-4 right-12 text-slate-400 hover:text-blue-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-white/50 p-1 rounded-md" title="編輯">✏️</button>
-                        <button onclick="deleteHotel(${idx})" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-white/50 p-1 rounded-md" title="刪除">🗑️</button>
-                        <div class="font-black text-slate-800 text-lg mb-1 pr-16">${hotel.name}</div>
-                        <div class="text-sm text-slate-500 mb-3">📅 ${hotel.date}</div>
-                        <div class="text-xs text-slate-600 mb-3 whitespace-pre-wrap">${hotel.address}</div>
-                        <button onclick="openMapSearch('${hotel.address.replace(/'/g, "\\'")}')" class="bg-white border border-amber-200 text-amber-700 text-xs font-bold px-3 py-2 rounded-xl flex items-center hover:bg-amber-100 transition-colors shadow-sm inline-flex w-auto">
+                    <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100 group relative w-full">
+                        <button onclick="editHotel(${idx})" class="absolute top-4 right-10 text-slate-400 hover:text-blue-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 p-1.5 rounded-lg shadow-sm border border-slate-100" title="編輯">✏️</button>
+                        <button onclick="deleteHotel(${idx})" class="absolute top-4 right-2 text-slate-400 hover:text-red-500 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 p-1.5 rounded-lg shadow-sm border border-slate-100" title="刪除">🗑️</button>
+                        
+                        <div class="font-black text-slate-800 text-base sm:text-lg mb-1 pr-16 leading-tight">${hotel.name}</div>
+                        <div class="text-[13px] sm:text-sm text-slate-500 mb-3 font-medium">📅 ${hotel.date}</div>
+                        <div class="text-[12px] sm:text-xs text-slate-600 mb-3 whitespace-pre-wrap break-words leading-relaxed">${hotel.address}</div>
+                        <button onclick="openMapSearch('${hotel.address.replace(/'/g, "\\'")}')" class="bg-white border border-amber-200 text-amber-700 text-[11px] font-bold px-3 py-2 rounded-xl flex items-center hover:bg-amber-100 transition-colors shadow-sm inline-flex w-auto whitespace-nowrap">
                             📍 開啟地圖導航
                         </button>
                     </div>
@@ -858,14 +881,14 @@
             
             tickets.forEach((t, i) => {
                 container.innerHTML += `
-                    <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all group">
-                        <div class="flex items-center space-x-3 overflow-hidden">
+                    <div class="flex items-center justify-between bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all group w-full">
+                        <div class="flex items-center space-x-3 overflow-hidden flex-1 min-w-0 pr-2">
                             <input type="checkbox" ${t.done?'checked':''} onchange="toggleTicket(${i})" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer flex-shrink-0">
-                            <span class="${t.done?'line-through text-slate-400':'text-slate-700 font-bold'} truncate text-sm sm:text-base cursor-pointer" onclick="editTicket(${i})">${t.name}</span>
+                            <span class="${t.done?'line-through text-slate-400':'text-slate-700 font-bold'} truncate text-[13px] sm:text-base cursor-pointer w-full block" onclick="editTicket(${i})">${t.name}</span>
                         </div>
-                        <div class="flex items-center space-x-3 flex-shrink-0">
-                            <span class="text-xs sm:text-sm font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg">NT$ ${t.cost}</span>
-                            <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 transition-colors p-1">🗑️</button>
+                        <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                            <span class="text-[11px] sm:text-sm font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg whitespace-nowrap">NT$ ${t.cost}</span>
+                            <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 transition-colors p-1 sm:p-2 rounded hover:bg-slate-100">🗑️</button>
                         </div>
                     </div>`;
             });
@@ -900,12 +923,12 @@
             
             packing.forEach((p, i) => {
                 container.innerHTML += `
-                    <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all group">
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer">
-                            <span class="${p.done?'line-through text-slate-400':'text-slate-700 font-bold'} text-sm sm:text-base">${p.name}</span>
+                    <div class="flex items-center justify-between bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all group w-full">
+                        <div class="flex items-center space-x-3 flex-1 min-w-0 pr-2">
+                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-500 cursor-pointer flex-shrink-0">
+                            <span class="${p.done?'line-through text-slate-400':'text-slate-700 font-bold'} text-[13px] sm:text-base truncate block w-full">${p.name}</span>
                         </div>
-                        <button onclick="deletePacking(${i})" class="text-slate-300 hover:text-red-500 transition-colors p-1">🗑️</button>
+                        <button onclick="deletePacking(${i})" class="text-slate-300 hover:text-red-500 transition-colors p-1 sm:p-2 rounded hover:bg-slate-100 flex-shrink-0">🗑️</button>
                     </div>`;
             });
         }
@@ -995,7 +1018,7 @@
 
         function showNotification(msg, type='success') {
             const div = document.createElement('div');
-            div.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-2xl text-white font-bold text-sm z-[200] transition-all duration-300 translate-y-10 opacity-0 ${type==='success'?'bg-emerald-600':'bg-red-600'}`;
+            div.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-2xl text-white font-bold text-sm z-[200] transition-all duration-300 translate-y-10 opacity-0 whitespace-nowrap ${type==='success'?'bg-emerald-600':'bg-red-600'}`;
             div.textContent = msg;
             document.body.appendChild(div);
             
