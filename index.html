@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>旅遊行程</title>
+    <title>巴黎 2027</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -24,6 +24,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
+        /* Smooth Drag and Drop animations with dashed indicator and touch lock */
         .draggable-card {
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
             touch-action: pan-y;
@@ -49,7 +50,7 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="text-slate-800 pb-24 w-full">
+<body class="text-slate-800 pb-28 w-full">
 
     <header class="bg-indigo-900 text-white p-4 shadow-lg sticky top-0 z-40">
         <div class="max-w-4xl mx-auto flex flex-col space-y-3 w-full">
@@ -57,11 +58,11 @@
                 <div class="flex items-center space-x-3 flex-1 min-w-0">
                     <span class="bg-amber-400 text-indigo-900 font-extrabold px-2 py-1 rounded text-sm flex-shrink-0">FR</span>
                     <select id="trip-selector" onchange="switchTrip()" class="bg-indigo-800/80 border border-indigo-700 text-white font-bold text-base sm:text-lg rounded-lg px-2 py-1 outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer w-full max-w-[200px] truncate">
-                        <option value="paris">巴黎 Bonjour 2027</option>
+                        <option value="paris">巴黎 2027</option>
                     </select>
                 </div>
                 <div class="flex space-x-1.5 flex-shrink-0 ml-2">
-                    <button onclick="createNewTrip()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-lg shadow transition-colors flex items-center">
+                    <button onclick="openNewTripModal()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-lg shadow transition-colors flex items-center">
                         ➕ <span class="hidden sm:inline ml-1">新增/複製行程</span>
                     </button>
                     <button onclick="undo()" class="bg-indigo-700 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold px-2 sm:px-3 py-1.5 rounded-lg shadow transition-colors flex items-center" title="復原 (Ctrl+Z)">
@@ -111,14 +112,14 @@
 
     <main class="max-w-4xl mx-auto mt-6 px-1 sm:px-4 w-full">
         
+        <!-- Itinerary View -->
         <div id="view-itinerary" class="space-y-6 w-full">
             <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
             
             <div class="bg-white rounded-3xl px-3 sm:px-6 py-5 sm:p-8 shadow-sm w-full overflow-hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6 w-full px-1 sm:px-0">
                     <div class="flex-1 w-full pl-1">
-                        <h2 id="day-title" class="text-xl sm:text-2xl font-black text-slate-800 leading-tight">第 1 天</h2>
-                        <!-- Dynamic auto-updating subtitle based on itinerary items -->
+                        <h2 id="day-title" class="text-xl sm:text-2xl font-black text-slate-800 leading-tight"></h2>
                         <p id="day-subtitle" class="text-slate-500 text-xs sm:text-sm mt-1.5 leading-relaxed"></p>
                     </div>
                     <button onclick="openDailyRouteMap()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-3 sm:py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 whitespace-nowrap flex-shrink-0">
@@ -126,17 +127,34 @@
                     </button>
                 </div>
                 
-                <!-- Timeline container with safely separated time & vertical line -->
                 <div id="timeline" class="relative pl-16 sm:pl-24 pb-6 space-y-4 mt-4 pr-1"></div>
                 
+                <!-- Add item button -->
                 <div class="px-1 sm:px-0 mt-6">
                     <button onclick="showAddModal()" class="w-full py-4 border-2 border-dashed border-slate-200 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center space-x-2 group">
                         <span class="text-xl group-hover:scale-125 transition-transform">➕</span> <span>新增此日行程項目</span>
                     </button>
                 </div>
+
+                <!-- Nearby Food Recommendations Section -->
+                <div class="mt-8 pt-6 border-t border-slate-100 px-1 sm:px-0 space-y-4">
+                    <h3 class="font-bold text-slate-800 flex items-center text-base"><span class="mr-2">🍽️</span> 附近美食推薦</h3>
+                    <div id="food-recommendations-list" class="space-y-3"></div>
+                    <button onclick="showAddFoodModal()" class="w-full py-3.5 border-2 border-dashed border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center space-x-2">
+                        <span class="text-lg">➕</span> <span>新增餐廳</span>
+                    </button>
+                </div>
+
+                <!-- Delete Entire Day Button -->
+                <div class="mt-8 pt-4 px-1 sm:px-0">
+                    <button onclick="deleteEntireDay()" class="w-full py-3.5 border border-red-200 bg-red-50/50 hover:bg-red-100/60 text-red-600 font-bold rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm">
+                        <span>🗑️</span> <span>刪除本日整天行程</span>
+                    </button>
+                </div>
             </div>
         </div>
 
+        <!-- Accommodation View -->
         <div id="view-accommodation" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm relative group w-full">
@@ -179,6 +197,7 @@
             </div>
         </div>
 
+        <!-- Tickets View -->
         <div id="view-tickets" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -186,13 +205,14 @@
                     <span id="ticket-count" class="text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1 rounded-full whitespace-nowrap">共 0 項</span>
                 </div>
                 <div id="ticket-list" class="space-y-4 mb-5 w-full"></div>
-                <div class="flex space-x-2 w-full pt-2 border-t border-slate-100">
+                <div class="flex space-x-2 w-full pt-3 border-t border-slate-100">
                     <input type="text" id="new-ticket-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增門票或交通卡...">
                     <button onclick="addTicket()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
             </div>
         </div>
 
+        <!-- Packing View -->
         <div id="view-packing" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -204,48 +224,77 @@
                 </div>
                 <div id="packing-list" class="space-y-2 mb-6 w-full"></div>
                 <div class="flex space-x-2 w-full">
-                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增專案項目...">
+                    <input type="text" id="new-packing-input" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm w-full" placeholder="新增清單項目...">
                     <button onclick="addPackingItem()" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold px-4 sm:px-6 rounded-xl transition-colors whitespace-nowrap">新增</button>
                 </div>
             </div>
         </div>
 
+        <!-- Budget View -->
         <div id="view-budget" class="hidden space-y-6 w-full px-1 sm:px-0">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col justify-center w-full">
-                    <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                        <h3 class="font-bold text-slate-800 flex items-center"><span class="mr-2 text-xl">💰</span> 匯率設定</h3>
-                        <div class="text-sm bg-slate-100 rounded-lg p-1 flex">
-                            <button onclick="setBaseCurrency('EUR')" id="btn-curr-EUR" class="px-3 py-1.5 rounded-md font-bold text-blue-700 bg-white shadow-sm transition-all">歐元 EUR</button>
-                            <button onclick="setBaseCurrency('JPY')" id="btn-curr-JPY" class="px-3 py-1.5 rounded-md font-bold text-slate-500 hover:text-slate-700 transition-all">日圓 JPY</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3 mb-8 w-full">
-                        <div class="text-slate-500 font-medium whitespace-nowrap">1 外幣 =</div>
-                        <input type="number" id="exchange-rate" onchange="calculateBudget()" class="w-20 sm:w-24 border border-slate-300 rounded-xl px-2 sm:px-3 py-2 text-base sm:text-lg font-bold text-center outline-none focus:border-blue-500 bg-slate-50">
-                        <div class="text-slate-500 font-medium whitespace-nowrap">TWD</div>
-                    </div>
-                    <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg shadow-indigo-200">
-                        <p class="text-indigo-100 text-sm font-medium mb-1">預估總花費 (TWD)</p>
-                        <div class="text-3xl sm:text-4xl font-black font-mono tracking-tight break-words" id="total-budget">NT$ 0</div>
-                    </div>
+            <!-- Top Summary Cards -->
+            <div class="grid grid-cols-2 gap-4 w-full">
+                <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
+                    <span class="text-xs sm:text-sm font-medium text-slate-500 mb-1">總預算 (2人)</span>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800 font-mono" id="summary-total-budget">NT$ 300,000</div>
                 </div>
-                <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
-                    <h3 class="font-bold text-slate-800 mb-5 flex items-center border-b border-slate-100 pb-4"><span class="mr-2 text-xl">📊</span> 分類花費</h3>
-                    <div class="space-y-6">
-                        <div>
-                            <div class="flex justify-between text-sm mb-1.5"><span class="text-slate-500 font-medium">行程/餐飲花費</span><span class="font-bold text-slate-800 font-mono" id="budget-itinerary">NT$ 0</span></div>
-                        </div>
-                        <div>
-                            <div class="flex justify-between text-sm mb-1.5"><span class="text-slate-500 font-medium">票券/交通代辦</span><span class="font-bold text-slate-800 font-mono" id="budget-tickets">NT$ 0</span></div>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
+                    <span class="text-xs sm:text-sm font-medium text-slate-500 mb-1">目前預估花費</span>
+                    <div class="text-xl sm:text-2xl font-black text-blue-600 font-mono" id="summary-estimated-cost">NT$ 0</div>
+                </div>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div id="budget-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">📊</span> 分類花費 (已含機票)</h3>
+                <div class="space-y-4 text-sm">
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">機票</span><span class="font-bold text-slate-800 font-mono" id="cat-flight">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">購物</span><span class="font-bold text-slate-800 font-mono" id="cat-shopping">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">景點門票</span><span class="font-bold text-slate-800 font-mono" id="cat-tickets">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">餐飲</span><span class="font-bold text-slate-800 font-mono" id="cat-food">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">交通</span><span class="font-bold text-slate-800 font-mono" id="cat-transport">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1 border-b border-slate-50"><span class="text-slate-500 font-medium">其他</span><span class="font-bold text-slate-800 font-mono" id="cat-other">NT$ 0</span></div>
+                    <div class="flex justify-between items-center py-1"><span class="text-slate-500 font-medium">住宿</span><span class="font-bold text-slate-800 font-mono" id="cat-hotel">NT$ 0</span></div>
+                </div>
+            </div>
+
+            <!-- Manual Expenses Section -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full space-y-4">
+                <h3 class="font-bold text-slate-800 mb-2 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">🧾</span> 手動填寫的費用</h3>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">✈️ 機票費用 (2人總額, TWD)</label>
+                    <input type="number" id="manual-flight" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🛍️ 購物費用 (2人總額, TWD)</label>
+                    <input type="number" id="manual-shopping" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🍽️ 餐飲費用 (2人總額, TWD)</label>
+                    <input type="number" id="manual-food" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2人總額, TWD)</label>
+                    <input type="number" id="manual-hotel" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                </div>
+            </div>
+
+            <!-- Adjust Total Budget Section -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full space-y-4">
+                <h3 class="font-bold text-slate-800 mb-2 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">✏️</span> 調整每人總預算</h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="number" id="input-total-budget" class="flex-1 border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50" placeholder="150000">
+                    <button onclick="saveTotalBudget()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-md shadow-blue-500/20 whitespace-nowrap">更新每人總預算</button>
                 </div>
             </div>
         </div>
 
     </main>
 
+    <!-- Itinerary Item Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end transition-opacity duration-300 opacity-0 w-full h-full">
         <div class="absolute inset-0 z-0" onclick="closeModal()"></div>
         <div id="modal-content" class="bg-white rounded-t-3xl max-w-4xl mx-auto w-full p-5 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative z-10 flex flex-col pb-10">
@@ -300,14 +349,97 @@
         </div>
     </div>
 
+    <!-- Food Recommendation Modal -->
+    <div id="food-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end transition-opacity duration-300 opacity-0 w-full h-full">
+        <div class="absolute inset-0 z-0" onclick="closeFoodModal()"></div>
+        <div id="food-modal-content" class="bg-white rounded-t-3xl max-w-4xl mx-auto w-full p-5 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative z-10 flex flex-col pb-10">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2 flex-shrink-0"></div>
+            <div class="flex justify-between items-start mb-2 flex-shrink-0">
+                <div class="flex-1 pr-4">
+                    <h3 id="food-modal-title" class="font-black text-xl sm:text-2xl text-slate-800 leading-tight">新增餐廳推薦</h3>
+                </div>
+                <button onclick="closeFoodModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-bold px-2 leading-none bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors flex-shrink-0 border border-slate-100 shadow-sm">&times;</button>
+            </div>
+            
+            <input type="hidden" id="food-modal-edit-index" value="-1">
+            
+            <div class="space-y-5 text-sm pb-2 overflow-y-auto hide-scrollbar w-full">
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">🍽️</span> 餐廳名稱</label>
+                    <input type="text" id="food-modal-name" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm sm:text-base font-bold text-slate-800 bg-slate-50" placeholder="例如：Le Bouillon Chartier">
+                </div>
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">📝</span> 主打餐點 / 特色介紹</label>
+                    <textarea id="food-modal-desc" class="w-full border border-slate-200 rounded-2xl p-3 outline-none h-20 focus:border-blue-500 text-sm text-slate-600 bg-slate-50 resize-none" placeholder="例如：百年平價法式餐廳，必點油封鴨..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">🗺️</span> 地圖關鍵字</label>
+                    <input type="text" id="food-modal-map-key" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm sm:text-base text-slate-700 bg-slate-50 font-mono" placeholder="Le Bouillon Chartier Paris">
+                </div>
+            </div>
+            
+            <div class="flex space-x-3 pt-4 border-t border-slate-100 flex-shrink-0 bg-white w-full">
+                <button onclick="closeFoodModal()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors">取消</button>
+                <button onclick="saveFoodModalItem()" class="flex-[2] py-3.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all">儲存餐廳</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Trip Modal -->
+    <div id="new-trip-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end transition-opacity duration-300 opacity-0 w-full h-full">
+        <div class="absolute inset-0 z-0" onclick="closeNewTripModal()"></div>
+        <div id="new-trip-modal-content" class="bg-white rounded-t-3xl max-w-4xl mx-auto w-full p-5 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative z-10 flex flex-col pb-10">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2 flex-shrink-0"></div>
+            <div class="flex justify-between items-start mb-2 flex-shrink-0">
+                <h3 class="font-black text-xl sm:text-2xl text-slate-800 leading-tight">✨ 新增或複製旅遊行程</h3>
+                <button onclick="closeNewTripModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-bold px-2 leading-none bg-slate-50 hover:bg-slate-100 rounded-full w-10 h-10 flex items-center justify-center transition-colors flex-shrink-0 border border-slate-100 shadow-sm">&times;</button>
+            </div>
+            
+            <div class="space-y-4 text-sm pb-2">
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-xs">新旅遊名稱</label>
+                    <input type="text" id="new-trip-name" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 font-bold text-slate-800 bg-slate-50" placeholder="例如：東京賞櫻 2027">
+                </div>
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1.5 text-xs">建立方式</label>
+                    <select id="new-trip-mode" class="w-full border border-slate-200 rounded-2xl p-3.5 outline-none focus:border-blue-500 font-bold text-slate-700 bg-slate-50 cursor-pointer">
+                        <option value="copy">複製目前「巴黎 2027」行程作為範本</option>
+                        <option value="blank">建立全新空白行程</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3 pt-4 border-t border-slate-100 flex-shrink-0 bg-white w-full">
+                <button onclick="closeNewTripModal()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-colors">取消</button>
+                <button onclick="confirmCreateNewTrip()" class="flex-[2] py-3.5 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-600/20 transition-all">確認建立新行程</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        const defaultPackingList = [
+            { name: "護照（效期 6 個月以上）", done: false },
+            { name: "機票、飯店訂單截圖/紙本", done: false },
+            { name: "歐元現金 + 信用卡（雙卡分開放）", done: false },
+            { name: "旅平險保單", done: false },
+            { name: "歐洲上網 eSIM", done: false },
+            { name: "手機充電線、歐規轉接頭、行動電源", done: false },
+            { name: "保暖外套、圍巾、手套、毛帽", done: false },
+            { name: "防水鞋", done: false },
+            { name: "常備藥品", done: false },
+            { name: "環保購物袋（法國超市多需自備）", done: false }
+        ];
+
         const presetTemplates = {
             paris: {
                 id: "paris",
-                name: "巴黎 Bonjour 2027",
-                baseCurrency: "EUR",
-                exchangeRate: 34.5,
+                name: "巴黎 2027",
                 activeDayIndex: 0,
+                manualFlight: 100000,
+                manualShopping: 20000,
+                manualFood: 15000,
+                manualHotel: 0,
+                totalBudget: 300000,
                 hotels: [
                     { name: "Maison Traversière", date: "2/4~2/6 (3晚)", address: "31 Rue Traversière, 75012 Paris, France" },
                     { name: "Hotel l'Elysée Val d'Europe", date: "2/7 (1晚)", address: "7 Cr du Danube, 77700 Serris, France" }
@@ -317,63 +449,59 @@
                     inbound: { date: "2027-02-09", no: "BR88", dept: "02/09 11:20", arr: "02/10 07:20" }
                 },
                 days: [
-                    { date: "2/3-2/4", label: "三➔四", items: [
+                    { date: "2/3-2/4", label: "三➔四", 
+                      foodRecommendations: [
+                          { name: "Le Bouillon Chartier", desc: "百年平價法式餐廳，必點油封鴨", mapKey: "Le Bouillon Chartier Paris" },
+                          { name: "Café de Flore", desc: "經典左岸人文咖啡館與熱巧克力", mapKey: "Cafe de Flore Paris" }
+                      ],
+                      items: [
                         { time: "07:45", title: "✈️ 戴高樂機場(CDG)抵達與入境", desc: "購買 Navigo 週票或搭乘 RER B 線直達市區", mapKey: "CDG Airport", cost: 0, travelAfter: { mode: "train", text: "00時 35分" } },
                         { time: "11:00", title: "🏨 飯店寄放行李 & 附近簡餐", desc: "Maison Traversière", mapKey: "Maison Traversiere Paris", cost: 500, travelAfter: { mode: "walk", text: "00時 15分" } },
                         { time: "14:00", title: "🗼 艾菲爾鐵塔 & 戰神廣場", desc: "預約電梯登頂，俯瞰巴黎全市美景", tips: "戰神廣場是拍攝鐵塔全身照的最佳地點", mapKey: "Eiffel Tower", cost: 2450, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "17:30", title: "🚢 塞納河景觀遊船", desc: "欣賞兩岸古蹟與日落夕陽", mapKey: "Bateaux Parisiens", cost: 600, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "18:30", title: "🍽️ 晚餐：Le Bouillon Chartier", desc: "百年平價法式餐廳", tips: "必點油封鴨 (Confit de Canard) 與法式螺肉", mapKey: "Le Bouillon Chartier", cost: 1200, travelAfter: null }
                     ]},
-                    { date: "2/5", label: "五", items: [
+                    { date: "2/5", label: "五", 
+                      foodRecommendations: [{ name: "L'As du Fallafel", desc: "瑪黑區超人氣平價中東口袋餅", mapKey: "L'As du Fallafel Paris" }],
+                      items: [
                         { time: "09:00", title: "🖼️ 羅浮宮博物館", desc: "重點觀賞三寶：《蒙娜麗莎》、《勝利女神》、《維納斯》", tips: "入口處安檢較久，建議提前抵達", mapKey: "Louvre Museum", cost: 2000, travelAfter: { mode: "walk", text: "00時 08分" } },
                         { time: "13:30", title: "🌳 杜樂麗花園", desc: "散步與休息", mapKey: "Jardin des Tuileries", cost: 0, travelAfter: { mode: "walk", text: "00時 12分" } },
                         { time: "15:00", title: "☕ 花神咖啡館 (Café de Flore)", desc: "體驗左岸人文氣息", tips: "招牌熱巧克力與千層派必點", mapKey: "Café de Flore Paris", cost: 650, travelAfter: { mode: "walk", text: "00時 05分" } },
                         { time: "17:30", title: "🛍️ 聖日耳曼德佩區 逛街與晚餐", desc: "自由逛街與尋找晚餐", mapKey: "Saint-Germain-des-Prés", cost: 1500, travelAfter: null }
                     ]},
-                    { date: "2/6", label: "六", items: [
+                    { date: "2/6", label: "六", foodRecommendations: [], items: [
                         { time: "08:30", title: "👑 凡爾賽宮 & 花園", desc: "搭乘 RER C 線直達 Versailles Château", tips: "鏡廳人潮眾多，建議一入內先直奔鏡廳拍照", mapKey: "Palace of Versailles", cost: 1800, travelAfter: { mode: "train", text: "00時 45分" } },
                         { time: "14:30", title: "🎨 奧塞美術館 (Musée d'Orsay)", desc: "欣賞梵谷、莫內、雷諾瓦等印象派名家畫作", mapKey: "Musée d'Orsay", cost: 1600, travelAfter: { mode: "car", text: "00時 15分" } },
                         { time: "18:00", title: "🚶 瑪黑區逛街與晚餐", desc: "文青小店與歷史街區", mapKey: "Le Marais Paris", cost: 1200, travelAfter: null }
                     ]},
-                    { date: "2/7", label: "日", items: [
+                    { date: "2/7", label: "日", foodRecommendations: [], items: [
                         { time: "09:30", title: "🎭 加尼葉歌劇院", desc: "參觀華麗金碧輝煌的大樓梯與內部", mapKey: "Palais Garnier", cost: 1200, travelAfter: { mode: "walk", text: "00時 10分" } },
                         { time: "12:30", title: "🛍️ 老佛爺百貨 & 春天百貨購物", desc: "辦理退稅手續", tips: "頂樓觀景台可免費俯瞰巴黎全景", mapKey: "Galeries Lafayette Haussmann", cost: 0, travelAfter: { mode: "car", text: "00時 15分" } },
                         { time: "17:30", title: "⛩️ 香榭麗舍大道 & 凱旋門登頂", desc: "遠眺 12 條大道交會壯麗夜景", mapKey: "Arc de Triomphe", cost: 1100, travelAfter: null }
                     ]},
-                    { date: "2/8", label: "一", items: [
+                    { date: "2/8", label: "一", foodRecommendations: [], items: [
                         { time: "10:00", title: "🖼️ 橘園美術館", desc: "欣賞莫內 360 度環景巨幅《睡蓮》", mapKey: "Musée de l'Orangerie", cost: 1100, travelAfter: { mode: "walk", text: "00時 15分" } },
                         { time: "12:30", title: "📚 莎士比亞書店 & 左岸舊書攤", desc: "著名英文書店", mapKey: "Shakespeare and Company Paris", cost: 0, travelAfter: { mode: "walk", text: "00時 08分" } },
                         { time: "14:30", title: "⛪ 巴黎聖母院外圍 & 西堤島", desc: "西堤島散步", mapKey: "Notre-Dame de Paris", cost: 0, travelAfter: { mode: "car", text: "00時 12分" } },
                         { time: "17:00", title: "🏢 龐畢度中心", desc: "現代藝術展與建築外觀", mapKey: "Centre Pompidou", cost: 0, travelAfter: null }
                     ]},
-                    { date: "2/9", label: "二", items: [
+                    { date: "2/9", label: "二", foodRecommendations: [], items: [
                         { time: "08:00", title: "🎒 退房前往機場", desc: "搭乘 RER B 或預約專車前往 CDG 機場", mapKey: "CDG Airport", cost: 600, travelAfter: { mode: "train", text: "00時 40分" } },
                         { time: "08:40", title: "📝 機場辦理退稅、報到登機", desc: "航班 BR88（11:20 起飛）", mapKey: "CDG Terminal 1", cost: 0, travelAfter: null }
                     ]},
-                    { date: "2/10", label: "三", items: [
+                    { date: "2/10", label: "三", foodRecommendations: [], items: [
                         { time: "06:30", title: "🛬 抵達台北桃園國際機場 (TPE)", desc: "行程圓滿結束！", mapKey: "TPE Airport", cost: 0, travelAfter: null }
                     ]}
                 ],
                 tickets: [
-                    { name: "羅浮宮快速通關門票", cost: 2000, done: false, category: "景點門票", note: "務必提前線上預約時段" },
-                    { name: "艾菲爾鐵塔登頂門票", cost: 2450, done: false, category: "景點門票", note: "建議提前預約時段" },
-                    { name: "凡爾賽宮 & 花園套票", cost: 1800, done: false, category: "景點門票", note: "點此新增備註" },
-                    { name: "塞納河遊船船票", cost: 600, done: false, category: "景點門票", note: "點此新增備註" },
-                    { name: "凱旋門登頂門票", cost: 1100, done: false, category: "景點門票", note: "點此新增備註" },
-                    { name: "Navigo 交通卡預算", cost: 1500, done: false, category: "交通票卡", note: "機場購買" }
+                    { name: "羅浮宮快速通關門票", cost: 2000, purchased: false, category: "景點門票", note: "務必提前線上預約時段" },
+                    { name: "艾菲爾鐵塔登頂門票", cost: 2450, purchased: false, category: "景點門票", note: "建議提前預約時段" },
+                    { name: "凡爾賽宮 & 花園套票", cost: 1800, purchased: false, category: "景點門票", note: "" },
+                    { name: "塞納河遊船船票", cost: 600, purchased: false, category: "景點門票", note: "" },
+                    { name: "凱旋門登頂門票", cost: 1100, purchased: false, category: "景點門票", note: "" },
+                    { name: "Navigo 交通卡預算", cost: 1500, purchased: false, category: "交通", note: "" }
                 ],
-                packing: [
-                    { name: "護照（效期6個月以上）", done: false },
-                    { name: "機票、飯店訂單截圖/紙本", done: false },
-                    { name: "歐元現金 + 信用卡（雙卡分開放）", done: false },
-                    { name: "旅平險保單", done: false },
-                    { name: "歐洲上網 eSIM", done: false },
-                    { name: "手機充電線、歐規轉接頭、行動電源", done: false },
-                    { name: "保暖外套、圍巾、手套、毛帽", done: false },
-                    { name: "防水鞋", done: false },
-                    { name: "常備藥品", done: false },
-                    { name: "環保購物袋（法國超市多需自備）", done: false }
-                ]
+                packing: JSON.parse(JSON.stringify(defaultPackingList))
             }
         };
 
@@ -388,28 +516,19 @@
         function initApp() {
             const savedData = localStorage.getItem('multiTripData');
             if (savedData) {
-                try { 
-                    appData = JSON.parse(savedData);
-                    Object.keys(appData.trips).forEach(k => {
-                        if(!appData.trips[k].packing || appData.trips[k].packing.length === 0) {
-                            appData.trips[k].packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
-                        }
-                        if(!appData.trips[k].tickets || appData.trips[k].tickets.length === 0) {
-                            appData.trips[k].tickets = JSON.parse(JSON.stringify(presetTemplates.paris.tickets));
-                        }
-                    });
-                } catch(e) {}
+                try { appData = JSON.parse(savedData); } catch(e) {}
+            }
+            if(!appData.trips["paris"]) {
+                appData.trips["paris"] = JSON.parse(JSON.stringify(presetTemplates.paris));
             }
             document.getElementById('gas-url').value = gasUrl;
+            renderTripSelector();
             renderAll();
         }
 
         function getCurrentTrip() {
             if (!appData.trips[appData.activeTripId]) {
                 appData.activeTripId = Object.keys(appData.trips)[0];
-            }
-            if(!appData.trips[appData.activeTripId].packing || appData.trips[appData.activeTripId].packing.length === 0) {
-                appData.trips[appData.activeTripId].packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
             }
             return appData.trips[appData.activeTripId];
         }
@@ -422,7 +541,7 @@
         function undo() {
             if (historyStack.length > 0) {
                 appData = JSON.parse(historyStack.pop());
-                saveLocal(); renderAll(); showNotification("↩️ 已復原");
+                saveLocal(); renderTripSelector(); renderAll(); showNotification("↩️ 已復原");
             } else {
                 showNotification("沒有可以復原的步驟了", "warning");
             }
@@ -433,12 +552,104 @@
         }
 
         function renderAll() {
+            renderTripSelector();
             renderDayTabs();
             renderTimeline();
+            renderFoodRecommendations();
             renderAccommodation();
             renderTickets();
             renderPacking();
             renderBudget();
+        }
+
+        function renderTripSelector() {
+            const selector = document.getElementById('trip-selector');
+            selector.innerHTML = '';
+            Object.keys(appData.trips).forEach(id => {
+                const trip = appData.trips[id];
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = trip.name || id;
+                if (id === appData.activeTripId) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function switchTrip() {
+            const selector = document.getElementById('trip-selector');
+            appData.activeTripId = selector.value;
+            const trip = getCurrentTrip();
+            if(trip.activeDayIndex === undefined) trip.activeDayIndex = 0;
+            saveLocal();
+            renderAll();
+            showNotification(`已切換至「${trip.name}」`);
+        }
+
+        function openNewTripModal() {
+            document.getElementById('new-trip-name').value = "";
+            const modal = document.getElementById('new-trip-modal');
+            const content = document.getElementById('new-trip-modal-content');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('translate-y-full');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNewTripModal() {
+            const modal = document.getElementById('new-trip-modal');
+            const content = document.getElementById('new-trip-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('translate-y-full');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function confirmCreateNewTrip() {
+            const nameInp = document.getElementById('new-trip-name').value.trim();
+            const mode = document.getElementById('new-trip-mode').value;
+            if(!nameInp) { showNotification("請輸入新旅遊名稱", "error"); return; }
+            
+            recordStateForUndo();
+            const newId = 'trip_' + Date.now();
+            let newTripObj;
+
+            if (mode === 'copy') {
+                newTripObj = JSON.parse(JSON.stringify(getCurrentTrip()));
+                newTripObj.id = newId;
+                newTripObj.name = nameInp;
+            } else {
+                newTripObj = {
+                    id: newId,
+                    name: nameInp,
+                    activeDayIndex: 0,
+                    manualFlight: 0,
+                    manualShopping: 0,
+                    manualFood: 0,
+                    manualHotel: 0,
+                    totalBudget: 150000,
+                    hotels: [],
+                    flight: {
+                        outbound: { date: "2027-06-01", no: "BR1", dept: "06/01 08:00", arr: "06/01 15:00" },
+                        inbound: { date: "2027-06-07", no: "BR2", dept: "06/07 13:00", arr: "06/08 07:00" }
+                    },
+                    days: [
+                        { date: "6/1", label: "一", foodRecommendations: [], items: [
+                            { time: "09:00", title: "✈️ 抵達與入住飯店", desc: "前往飯店寄放行李", mapKey: "Hotel", cost: 0, travelAfter: null }
+                        ]}
+                    ],
+                    tickets: [],
+                    packing: JSON.parse(JSON.stringify(defaultPackingList))
+                };
+            }
+
+            appData.trips[newId] = newTripObj;
+            appData.activeTripId = newId;
+            saveLocal();
+            closeNewTripModal();
+            renderTripSelector();
+            renderAll();
+            showNotification(`✨ 成功建立新行程「${nameInp}」！`);
         }
 
         function switchTab(tabId) {
@@ -450,6 +661,7 @@
             document.getElementById('view-' + tabId).classList.remove('hidden');
             document.getElementById('tab-' + tabId).classList.add('tab-active');
             document.getElementById('tab-' + tabId).classList.remove('tab-inactive');
+            if(tabId === 'budget') renderBudget();
         }
 
         function renderDayTabs() {
@@ -464,13 +676,12 @@
                 btn.innerHTML = `<span class="text-[11px] font-bold mb-1">${day.label}</span><span class="${isActive ? 'text-base font-black' : 'text-sm font-bold'}">${day.date}</span>`;
                 btn.onclick = () => {
                     trip.activeDayIndex = index;
-                    saveLocal(); renderDayTabs(); renderTimeline();
+                    saveLocal(); renderDayTabs(); renderTimeline(); renderFoodRecommendations();
                 };
                 container.appendChild(btn);
             });
         }
 
-        // --- Long-Press Drag and Drop ---
         let draggedIndex = null;
         let targetIndex = null;
 
@@ -497,8 +708,10 @@
                     return;
                 }
                 e.preventDefault();
+                
                 const touchY = e.touches[0].clientY;
                 const cards = document.querySelectorAll('.draggable-card');
+                
                 cards.forEach((card, idx) => {
                     const rect = card.getBoundingClientRect();
                     if (touchY >= rect.top && touchY <= rect.bottom) {
@@ -531,6 +744,7 @@
                 if (!isLongPressed || draggedIndex === null) return;
                 const mouseY = e.clientY;
                 const cards = document.querySelectorAll('.draggable-card');
+                
                 cards.forEach((card, idx) => {
                     const rect = card.getBoundingClientRect();
                     if (mouseY >= rect.top && mouseY <= rect.bottom) {
@@ -554,7 +768,6 @@
             el.addEventListener('touchstart', handleTouchStart, {passive: true});
             window.addEventListener('touchmove', handleTouchMove, {passive: false});
             window.addEventListener('touchend', handleTouchEnd);
-
             el.addEventListener('mousedown', handleMouseDown);
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
@@ -595,9 +808,8 @@
 
             document.getElementById('day-title').textContent = `第 ${currentDayIndex + 1} 天`;
             
-            // Automatically generate subtitle dynamically from today's item titles joined by arrows
-            const dynamicSummary = currentDay.items.map(item => item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim()).join(' ➔ ');
-            document.getElementById('day-subtitle').textContent = dynamicSummary;
+            const summaryText = currentDay.items.map(item => item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim()).join(" ➔ ");
+            document.getElementById('day-subtitle').textContent = summaryText;
 
             currentDay.items.forEach((item, index) => {
                 const wrapper = document.createElement('div');
@@ -608,6 +820,7 @@
                 let htmlStr = `
                     <div class="absolute left-[-22px] top-4 bottom-[-16px] w-0.5 bg-slate-200 pointer-events-none"></div>
                     <div class="absolute left-[-26px] top-[1.25rem] w-3 h-3 rounded-full border-[2px] border-white bg-indigo-600 shadow-sm z-10 pointer-events-none"></div>
+                    
                     <div class="absolute left-[-82px] top-[1.05rem] text-[12px] font-black text-amber-600 tracking-tighter text-right w-[54px]">${item.time || ''}</div>
                     
                     <div class="bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm hover:shadow-md transition-all relative flex flex-col gap-3 group overflow-hidden w-full select-none">
@@ -670,6 +883,123 @@
             });
         }
 
+        function renderFoodRecommendations() {
+            const container = document.getElementById('food-recommendations-list');
+            container.innerHTML = '';
+            const trip = getCurrentTrip();
+            const currentDay = trip.days[trip.activeDayIndex || 0];
+            if (!currentDay) return;
+            if (!currentDay.foodRecommendations) currentDay.foodRecommendations = [];
+
+            currentDay.foodRecommendations.forEach((food, idx) => {
+                container.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-2 relative group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-black text-slate-800 text-sm sm:text-base break-words">${food.name || '未命名餐廳'}</div>
+                            <div class="text-xs text-slate-500 mt-0.5 break-words">${food.desc || ''}</div>
+                        </div>
+                        <div class="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
+                            <button onclick="openMapSearch('${(food.mapKey || food.name || '餐廳').replace(/'/g, "\\'")}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center transition-colors shadow-sm whitespace-nowrap">
+                                📍 地圖
+                            </button>
+                            <button onclick="editFoodRecommendation(${idx})" class="text-slate-400 hover:text-blue-500 p-1.5 rounded-lg text-xs" title="編輯">✏️</button>
+                            <button onclick="deleteFoodRecommendation(${idx})" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg text-xs" title="刪除">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function showAddFoodModal() {
+            document.getElementById('food-modal-title').textContent = '新增餐廳推薦';
+            document.getElementById('food-modal-edit-index').value = -1;
+            document.getElementById('food-modal-name').value = '';
+            document.getElementById('food-modal-desc').value = '';
+            document.getElementById('food-modal-map-key').value = '';
+            openFoodModal();
+        }
+
+        function editFoodRecommendation(idx) {
+            const currentDay = getCurrentTrip().days[getCurrentTrip().activeDayIndex || 0];
+            const food = currentDay.foodRecommendations[idx];
+            document.getElementById('food-modal-title').textContent = '編輯餐廳推薦';
+            document.getElementById('food-modal-edit-index').value = idx;
+            document.getElementById('food-modal-name').value = food.name || '';
+            document.getElementById('food-modal-desc').value = food.desc || '';
+            document.getElementById('food-modal-map-key').value = food.mapKey || food.name || '';
+            openFoodModal();
+        }
+
+        function openFoodModal() {
+            const modal = document.getElementById('food-modal');
+            const content = document.getElementById('food-modal-content');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('translate-y-full');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFoodModal() {
+            const modal = document.getElementById('food-modal');
+            const content = document.getElementById('food-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('translate-y-full');
+            document.body.style.overflow = '';
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveFoodModalItem() {
+            recordStateForUndo();
+            const editIndex = parseInt(document.getElementById('food-modal-edit-index').value);
+            const trip = getCurrentTrip();
+            const currentDay = trip.days[trip.activeDayIndex || 0];
+            if (!currentDay.foodRecommendations) currentDay.foodRecommendations = [];
+
+            const newFoodData = {
+                name: document.getElementById('food-modal-name').value.trim() || "未命名餐廳",
+                desc: document.getElementById('food-modal-desc').value.trim() || "",
+                mapKey: document.getElementById('food-modal-map-key').value.trim() || document.getElementById('food-modal-name').value.trim() || "Paris Restaurant"
+            };
+
+            if (editIndex > -1) {
+                currentDay.foodRecommendations[editIndex] = newFoodData;
+            } else {
+                currentDay.foodRecommendations.push(newFoodData);
+            }
+
+            saveLocal();
+            closeFoodModal();
+            renderFoodRecommendations();
+            showNotification("餐廳推薦已儲存！");
+        }
+
+        function deleteFoodRecommendation(idx) {
+            if(confirm('確定要刪除這間餐廳推薦嗎？')) {
+                recordStateForUndo();
+                getCurrentTrip().days[getCurrentTrip().activeDayIndex || 0].foodRecommendations.splice(idx, 1);
+                saveLocal();
+                renderFoodRecommendations();
+            }
+        }
+
+        function deleteEntireDay() {
+            const trip = getCurrentTrip();
+            const currentDayIndex = trip.activeDayIndex || 0;
+            const currentDay = trip.days[currentDayIndex];
+            if (confirm(`確定要刪除「第 ${currentDayIndex + 1} 天 (${currentDay.date})」的所有行程與美食推薦嗎？`)) {
+                recordStateForUndo();
+                trip.days.splice(currentDayIndex, 1);
+                if (trip.days.length === 0) {
+                    trip.days.push({ date: "Day 1", label: "1", foodRecommendations: [], items: [] });
+                }
+                trip.activeDayIndex = Math.max(0, currentDayIndex - 1);
+                saveLocal();
+                renderAll();
+                showNotification("已刪除本日整天行程");
+            }
+        }
+
         function showAddModal() { 
             document.getElementById('modal-title').textContent = '新增行程項目';
             document.getElementById('modal-subtitle').classList.add('hidden');
@@ -696,7 +1026,7 @@
             trip.days.forEach((day, i) => {
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = `第 ${i + 1} 天 (${day.date}) — ${i === currentDayIndex ? '目前所在天' : '移動至此'}`;
+                option.textContent = `${day.date} (${day.label}) — ${i === currentDayIndex ? '目前所在天' : '移動至此'}`;
                 if (i === currentDayIndex) option.selected = true;
                 select.appendChild(option);
             });
@@ -834,111 +1164,61 @@
             const container = document.getElementById('ticket-list');
             container.innerHTML = '';
             const trip = getCurrentTrip();
-            const tickets = trip.tickets || [];
+            if(!trip.tickets) trip.tickets = [];
             
-            document.getElementById('ticket-count').textContent = `共 ${tickets.length} 項`;
-
-            let totalTicketCost = tickets.reduce((sum, t) => sum + (Number(t.cost) || 0), 0);
-
-            let html = `
-                <div class="bg-amber-50/60 border border-amber-100 p-3.5 rounded-2xl flex justify-between items-center mb-4">
-                    <span class="text-xs font-bold text-amber-900 flex items-center">🎟️ 景點門票類</span>
-                    <span class="text-sm font-black text-amber-800 font-mono">NT$${totalTicketCost.toLocaleString()}</span>
-                </div>
-            `;
-
-            tickets.forEach((t, i) => {
-                const isDone = t.done;
-                html += `
-                    <div class="bg-white border border-slate-100 p-4 sm:p-5 rounded-3xl shadow-sm space-y-3 relative">
+            document.getElementById('ticket-count').textContent = `共 ${trip.tickets.length} 項`;
+            
+            trip.tickets.forEach((t, i) => {
+                const isPurchased = t.purchased === true;
+                container.innerHTML += `
+                    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm space-y-3">
                         <div class="flex items-center justify-between gap-3">
-                            <button onclick="toggleTicket(${i})" class="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 shadow-sm transition-all whitespace-nowrap ${isDone ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}">
-                                <span>${isDone ? '已購買' : '尚未購買'}</span>
-                                <span class="text-[10px] opacity-80">▾</span>
+                            <button onclick="toggleTicketStatus(${i})" class="${isPurchased ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'} text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm whitespace-nowrap flex items-center">
+                                ${isPurchased ? '已購買' : '尚未購買'} <span class="ml-1 text-[10px]">▾</span>
                             </button>
-                            <input type="text" value="${t.name}" onchange="updateTicketName(${i}, this.value)" class="font-black text-slate-800 text-base sm:text-lg bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 outline-none flex-1">
+                            <input type="text" value="${t.name}" onchange="updateTicketName(${i}, this.value)" class="flex-1 font-bold text-slate-800 text-sm bg-transparent border-b border-transparent focus:border-blue-500 outline-none">
+                            <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 p-1 text-sm">🗑️</button>
                         </div>
-
-                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-50">
-                            <div class="flex items-center space-x-2">
-                                <div class="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm">
-                                    <span class="text-xs mr-1">💰</span>
-                                    <input type="number" value="${t.cost || 0}" onchange="updateTicketCost(${i}, this.value)" class="w-20 bg-transparent font-mono font-bold text-sm text-slate-800 outline-none">
-                                </div>
-                                <select onchange="updateTicketCategory(${i}, this.value)" class="bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-xl px-3 py-2 outline-none font-bold cursor-pointer shadow-sm">
-                                    <option value="景點門票" ${t.category === '景點門票' ? 'selected' : ''}>景點門票</option>
-                                    <option value="交通票卡" ${t.category === '交通票卡' ? 'selected' : ''}>交通票卡</option>
-                                    <option value="其他費用" ${t.category === '其他費用' ? 'selected' : ''}>其他費用</option>
-                                </select>
+                        <div class="flex items-center space-x-2 pt-2 border-t border-slate-50">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex items-center space-x-1 w-32">
+                                <span class="text-xs">💰</span>
+                                <input type="number" value="${t.cost || 0}" onchange="updateTicketCost(${i}, this.value)" class="w-full bg-transparent font-bold text-slate-800 text-xs outline-none">
                             </div>
-                            <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 text-base p-2 rounded-xl transition-colors" title="刪除">🗑️</button>
+                            <select onchange="updateTicketCategory(${i}, this.value)" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
+                                <option value="景點門票" ${t.category==='景點門票'?'selected':''}>景點門票</option>
+                                <option value="交通" ${t.category==='交通'?'selected':''}>交通</option>
+                                <option value="其他" ${t.category==='其他'?'selected':''}>其他</option>
+                            </select>
                         </div>
-
-                        <div>
-                            <input type="text" value="${t.note || ''}" placeholder="點此新增備註（例如：訂購連結、時段、注意事項）..." onchange="updateTicketNote(${i}, this.value)" class="w-full text-xs text-slate-500 bg-slate-50/60 border border-slate-100 rounded-2xl px-3.5 py-2.5 outline-none focus:border-blue-300">
-                        </div>
-                    </div>
-                `;
+                        <input type="text" value="${t.note || ''}" placeholder="點此新增備註，例如訂購連結、時段..." onchange="updateTicketNote(${i}, this.value)" class="w-full text-xs text-slate-500 bg-slate-50/60 border border-slate-100 rounded-xl p-2 outline-none focus:border-blue-500">
+                    </div>`;
             });
-
-            container.innerHTML = html;
         }
 
-        function toggleTicket(i) {
+        function toggleTicketStatus(i) {
             recordStateForUndo();
-            const trip = getCurrentTrip();
-            trip.tickets[i].done = !trip.tickets[i].done;
-            saveLocal();
-            renderTickets();
+            const t = getCurrentTrip().tickets[i];
+            t.purchased = !t.purchased;
+            saveLocal(); renderTickets();
         }
 
-        function updateTicketName(i, val) {
-            recordStateForUndo();
-            getCurrentTrip().tickets[i].name = val.trim();
-            saveLocal();
-        }
-
-        function updateTicketCost(i, val) {
-            recordStateForUndo();
-            getCurrentTrip().tickets[i].cost = Number(val) || 0;
-            saveLocal();
-            renderTickets();
-            renderBudget();
-        }
-
-        function updateTicketCategory(i, val) {
-            recordStateForUndo();
-            getCurrentTrip().tickets[i].category = val;
-            saveLocal();
-        }
-
-        function updateTicketNote(i, val) {
-            recordStateForUndo();
-            getCurrentTrip().tickets[i].note = val.trim();
-            saveLocal();
-        }
-
+        function updateTicketName(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].name = val; saveLocal(); }
+        function updateTicketCost(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].cost = Number(val)||0; saveLocal(); renderBudget(); }
+        function updateTicketCategory(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].category = val; saveLocal(); renderBudget(); }
+        function updateTicketNote(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].note = val; saveLocal(); }
         function deleteTicket(i) {
-            if(confirm('確定要刪除這項門票或交通待辦嗎？')) {
-                recordStateForUndo();
-                getCurrentTrip().tickets.splice(i, 1);
-                saveLocal();
-                renderTickets();
-                renderBudget();
-            }
+            recordStateForUndo();
+            getCurrentTrip().tickets.splice(i, 1);
+            saveLocal(); renderTickets(); renderBudget();
         }
 
         function addTicket() {
             const inp = document.getElementById('new-ticket-input');
-            const name = inp.value.trim();
-            if(name) {
+            if(inp.value.trim()){
                 recordStateForUndo();
-                getCurrentTrip().tickets.push({ name: name, cost: 0, done: false, category: "景點門票", note: "" });
+                getCurrentTrip().tickets.push({name: inp.value.trim(), cost: 0, purchased: false, category: "景點門票", note: ""});
                 inp.value = '';
-                saveLocal();
-                renderTickets();
-                renderBudget();
-                showNotification("已新增待辦項目！");
+                saveLocal(); renderTickets(); renderBudget();
             }
         }
 
@@ -946,82 +1226,102 @@
             const container = document.getElementById('packing-list');
             container.innerHTML = '';
             const trip = getCurrentTrip();
-            if(!trip.packing || trip.packing.length === 0) {
-                trip.packing = JSON.parse(JSON.stringify(presetTemplates.paris.packing));
-            }
-            const packing = trip.packing;
-
-            const doneCount = packing.filter(p=>p.done).length;
-            document.getElementById('packing-progress').textContent = `${doneCount}/${packing.length} 完成`;
-            document.getElementById('packing-progress-bar').style.width = `${packing.length ? (doneCount/packing.length)*100 : 0}%`;
+            if(!trip.packing) trip.packing = JSON.parse(JSON.stringify(defaultPackingList));
             
-            packing.forEach((p, i) => {
+            const doneCount = trip.packing.filter(p=>p.done).length;
+            document.getElementById('packing-progress').textContent = `${doneCount}/${trip.packing.length} 完成`;
+            document.getElementById('packing-progress-bar').style.width = `${trip.packing.length ? (doneCount/trip.packing.length)*100 : 0}%`;
+            
+            trip.packing.forEach((p, i) => {
                 container.innerHTML += `
                     <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <div class="flex items-center space-x-3 flex-1 min-w-0">
-                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded text-emerald-500 cursor-pointer">
+                            <input type="checkbox" ${p.done?'checked':''} onchange="togglePacking(${i})" class="w-5 h-5 rounded text-emerald-500">
                             <span class="${p.done?'line-through text-slate-400':'text-slate-700 font-bold'} text-sm truncate">${p.name}</span>
                         </div>
-                        <button onclick="deletePackingItem(${i})" class="text-slate-300 hover:text-red-500 p-1.5 text-xs transition-colors" title="刪除">🗑️</button>
+                        <button onclick="deletePacking(${i})" class="text-slate-300 hover:text-red-500 text-xs px-2">🗑️</button>
                     </div>`;
             });
         }
-
-        function togglePacking(i) {
-            recordStateForUndo();
-            const trip = getCurrentTrip();
-            trip.packing[i].done = !trip.packing[i].done;
-            saveLocal();
-            renderPacking();
-        }
-
+        function togglePacking(i) { recordStateForUndo(); getCurrentTrip().packing[i].done = !getCurrentTrip().packing[i].done; saveLocal(); renderPacking(); }
+        function deletePacking(i) { recordStateForUndo(); getCurrentTrip().packing.splice(i, 1); saveLocal(); renderPacking(); }
         function addPackingItem() {
             const inp = document.getElementById('new-packing-input');
-            const val = inp.value.trim();
-            if(val) {
+            if(inp.value.trim()){
                 recordStateForUndo();
-                const trip = getCurrentTrip();
-                if(!trip.packing) trip.packing = [];
-                trip.packing.push({name: val, done: false});
+                getCurrentTrip().packing.push({name: inp.value.trim(), done: false});
                 inp.value = '';
-                saveLocal();
-                renderPacking();
-                showNotification("已新增行李項目！");
+                saveLocal(); renderPacking();
             }
         }
 
-        function deletePackingItem(i) {
+        function updateManualExpenses() {
             recordStateForUndo();
             const trip = getCurrentTrip();
-            trip.packing.splice(i, 1);
+            trip.manualFlight = Number(document.getElementById('manual-flight').value) || 0;
+            trip.manualShopping = Number(document.getElementById('manual-shopping').value) || 0;
+            trip.manualFood = Number(document.getElementById('manual-food').value) || 0;
+            trip.manualHotel = Number(document.getElementById('manual-hotel').value) || 0;
             saveLocal();
-            renderPacking();
+            renderBudget();
         }
 
-        function setBaseCurrency(currency) {
+        function saveTotalBudget() {
+            recordStateForUndo();
             const trip = getCurrentTrip();
-            trip.baseCurrency = currency;
-            trip.exchangeRate = currency === 'EUR' ? 34.5 : 0.21;
-            document.getElementById('exchange-rate').value = trip.exchangeRate;
-            saveLocal(); renderBudget();
-        }
-
-        function calculateBudget() {
-            getCurrentTrip().exchangeRate = Number(document.getElementById('exchange-rate').value) || 1;
-            saveLocal(); renderBudget();
+            trip.totalBudget = Number(document.getElementById('input-total-budget').value) || 150000;
+            saveLocal();
+            renderBudget();
+            showNotification("每人總預算已更新！");
         }
 
         function renderBudget() {
             const trip = getCurrentTrip();
-            document.getElementById('exchange-rate').value = trip.exchangeRate || 1;
-            let itineraryTotal = 0;
-            trip.days.forEach(day => day.items.forEach(item => itineraryTotal += (Number(item.cost) || 0)));
-            let ticketTotal = 0;
-            if(trip.tickets) trip.tickets.forEach(t => ticketTotal += (Number(t.cost) || 0));
+            if(trip.manualFlight === undefined) trip.manualFlight = 100000;
+            if(trip.manualShopping === undefined) trip.manualShopping = 20000;
+            if(trip.manualFood === undefined) trip.manualFood = 15000;
+            if(trip.manualHotel === undefined) trip.manualHotel = 0;
+            if(trip.totalBudget === undefined) trip.totalBudget = 300000;
 
-            document.getElementById('budget-itinerary').textContent = `NT$ ${itineraryTotal.toLocaleString()}`;
-            document.getElementById('budget-tickets').textContent = `NT$ ${ticketTotal.toLocaleString()}`;
-            document.getElementById('total-budget').textContent = `NT$ ${(itineraryTotal + ticketTotal).toLocaleString()}`;
+            document.getElementById('manual-flight').value = trip.manualFlight;
+            document.getElementById('manual-shopping').value = trip.manualShopping;
+            document.getElementById('manual-food').value = trip.manualFood;
+            document.getElementById('manual-hotel').value = trip.manualHotel;
+            document.getElementById('input-total-budget').value = trip.totalBudget;
+
+            let flightCost = trip.manualFlight;
+            let shoppingCost = trip.manualShopping;
+            let foodCost = trip.manualFood;
+            let hotelCost = trip.manualHotel;
+            let ticketsCost = 0;
+            let transportCost = 0;
+            let otherCost = 0;
+
+            if(trip.tickets) {
+                trip.tickets.forEach(t => {
+                    const c = Number(t.cost) || 0;
+                    if(t.category === '景點門票') ticketsCost += c;
+                    else if(t.category === '交通') transportCost += c;
+                    else otherCost += c;
+                });
+            }
+
+            document.getElementById('cat-flight').textContent = `NT$ ${flightCost.toLocaleString()}`;
+            document.getElementById('cat-shopping').textContent = `NT$ ${shoppingCost.toLocaleString()}`;
+            document.getElementById('cat-tickets').textContent = `NT$ ${ticketsCost.toLocaleString()}`;
+            document.getElementById('cat-food').textContent = `NT$ ${foodCost.toLocaleString()}`;
+            document.getElementById('cat-transport').textContent = `NT$ ${transportCost.toLocaleString()}`;
+            document.getElementById('cat-other').textContent = `NT$ ${otherCost.toLocaleString()}`;
+            document.getElementById('cat-hotel').textContent = `NT$ ${hotelCost.toLocaleString()}`;
+
+            const totalEstimated = flightCost + shoppingCost + ticketsCost + foodCost + transportCost + otherCost + hotelCost;
+            const totalBudget = trip.totalBudget;
+
+            document.getElementById('summary-total-budget').textContent = `NT$ ${totalBudget.toLocaleString()}`;
+            document.getElementById('summary-estimated-cost').textContent = `NT$ ${totalEstimated.toLocaleString()}`;
+
+            const pct = totalBudget > 0 ? Math.min(100, (totalEstimated / totalBudget) * 100) : 0;
+            document.getElementById('budget-progress-bar').style.width = `${pct}%`;
         }
 
         function openMapSearch(kw) {
@@ -1031,35 +1331,22 @@
         function openDailyRouteMap() {
             const trip = getCurrentTrip();
             const currentDay = trip.days[trip.activeDayIndex || 0];
-            if (!currentDay || !currentDay.items.length) { 
-                showNotification('今日尚無行程', 'error'); 
-                return; 
+            if (!currentDay || !currentDay.items.length) { showNotification('今日尚無行程', 'error'); return; }
+            
+            const validItems = currentDay.items.filter(item => item.mapKey || item.title);
+            if(validItems.length === 0) { showNotification('今日無有效導航點', 'error'); return; }
+            
+            const origin = encodeURIComponent(validItems[0].mapKey || validItems[0].title);
+            const destination = encodeURIComponent(validItems[validItems.length - 1].mapKey || validItems[validItems.length - 1].title);
+            
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+            
+            if (validItems.length > 2) {
+                const waypoints = validItems.slice(1, -1).map(item => encodeURIComponent(item.mapKey || item.title)).join('|');
+                url += `&waypoints=${waypoints}`;
             }
             
-            const locations = currentDay.items
-                .map(item => item.mapKey || item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim())
-                .filter(loc => loc.length > 0);
-
-            if (locations.length === 0) {
-                showNotification('今日尚無可用導航地點', 'error');
-                return;
-            }
-
-            if (locations.length === 1) {
-                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locations[0])}`, '_blank');
-                return;
-            }
-
-            const origin = encodeURIComponent(locations[0]);
-            const destination = encodeURIComponent(locations[locations.length - 1]);
-            let mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-            
-            if (locations.length > 2) {
-                const waypoints = locations.slice(1, locations.length - 1).map(loc => encodeURIComponent(loc)).join('|');
-                mapsUrl += `&waypoints=${waypoints}`;
-            }
-
-            window.open(mapsUrl, '_blank');
+            window.open(url, '_blank');
         }
 
         function showNotification(msg, type='success') {
