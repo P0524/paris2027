@@ -75,7 +75,7 @@
                         <i class="fa-solid fa-plus"></i>
                         <span class="hidden sm:inline">新增/複製行程</span>
                     </button>
-                    <!-- 往上一步 (復原) 按鈕 -->
+                    <!-- 復原按鈕 -->
                     <button id="undo-btn" onclick="undoLastAction()" disabled class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs px-2.5 py-1.5 rounded-lg shadow flex items-center space-x-1.5 border border-slate-700 transition-all opacity-50 cursor-not-allowed" title="復原上一步驟 (Ctrl+Z)">
                         <i class="fa-solid fa-rotate-left text-amber-400"></i>
                         <span>復原<span id="undo-count" class="hidden sm:inline text-[10px] text-amber-300 ml-0.5"></span></span>
@@ -289,25 +289,24 @@
                     <label class="block text-slate-600 font-semibold mb-1">選擇熱門預設模版 (可快速帶入天數與預設清單)</label>
                     <select id="new-trip-template" onchange="applyTemplateDefaults()" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
                         <option value="custom">空白新行程 (完全自訂)</option>
+                        <option value="paris">🇫🇷 法國巴黎 7天6夜 藝術城堡完整版</option>
                         <option value="tokyo">🗾 日本東京 5天4夜 經典行程</option>
                         <option value="kyoto">⛩️ 日本關西京都 4天3夜 古都行</option>
-                        <option value="paris">🇫🇷 法國巴黎 7天6夜 藝術城堡</option>
-                        <option value="iceland">❄️ 冰島極光自駕 8天7夜</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-slate-600 font-semibold mb-1">國家簡碼 (如 JP/FR/US)</label>
-                        <input type="text" id="new-trip-country" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="JP">
+                        <label class="block text-slate-600 font-semibold mb-1">國家簡碼 (如 FR/JP/US)</label>
+                        <input type="text" id="new-trip-country" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="FR">
                     </div>
                     <div>
                         <label class="block text-slate-600 font-semibold mb-1">外幣幣別代碼</label>
-                        <input type="text" id="new-trip-currency" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="JPY">
+                        <input type="text" id="new-trip-currency" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="EUR">
                     </div>
                 </div>
                 <div>
                     <label class="block text-slate-600 font-semibold mb-1">參考匯率 (1外幣 ≈ 多少台幣 TWD)</label>
-                    <input type="number" step="0.0001" id="new-trip-rate" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0.22">
+                    <input type="number" step="0.0001" id="new-trip-rate" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="35">
                 </div>
             </div>
             <div class="flex space-x-2 pt-2">
@@ -318,8 +317,79 @@
     </div>
 
     <script>
-        // Preset Trip Templates for Quick Creation
+        // Preset Trip Templates with full 7 Days 6 Nights for Paris
         const presetTemplates = {
+            paris: {
+                country: "FR", currency: "EUR", rate: 35,
+                flight: "去程：長榮航空 BR87 | 23:05 台北(TPE) ➔ 02/04 07:45 巴黎戴高樂(CDG)\n回程：長榮航空 BR88 | 11:20 巴黎戴高樂(CDG) ➔ 02/10 06:30 台北(TPE)",
+                hotel: "CitizenM Paris Gare de Lyon (地址：8 Rue de Van Gogh, 75012 Paris)",
+                days: [
+                    { 
+                        date: "2/3-2/4", week: "三➔四", title: "初抵巴黎・經典地標與塞納河畔", 
+                        items: [
+                            { time: "07:45", title: "✈️ 戴高樂機場 (CDG) 抵達與入境", desc: "辦理入境與提領行李，購買 Navigo 週票或搭乘 RER B 線直達市區", cost: 0 },
+                            { time: "11:00", title: "🏨 飯店寄放行李 & 附近簡餐", desc: "前往 CitizenM Paris Gare de Lyon 寄放行李並稍作休整", cost: 500 },
+                            { time: "14:00", title: "🗼 艾菲爾鐵塔 & 戰神廣場", desc: "經典地標巡禮，預約電梯登頂觀景台，戰神廣場拍照合影", cost: 2450 },
+                            { time: "17:30", title: "🚢 塞納河景觀遊船 (Bateaux Parisiens)", desc: "乘船欣賞兩岸古蹟與巴黎聖母院夕陽夜景", cost: 600 },
+                            { time: "18:30", title: "🍽️ 晚餐：Le Bouillon Chartier", desc: "百年平價法式餐廳，必點油封鴨 (Confit de Canard) 與法式螺肉", cost: 1200 }
+                        ]
+                    },
+                    { 
+                        date: "2/5", week: "五", title: "藝術殿堂與左岸咖啡時光", 
+                        items: [
+                            { time: "09:00", title: "🖼️ 羅浮宮博物館 (Musée du Louvre)", desc: "預約快速通關門票，重點觀賞三寶：《蒙娜麗莎》、《勝利女神》、《維納斯》", cost: 2000 },
+                            { time: "13:30", title: "🌳 杜樂麗花園 (Jardin des Tuileries) 散步", desc: "漫步法式宮廷花園，享受悠閒氣息", cost: 0 },
+                            { time: "15:00", title: "☕ 花神咖啡館 (Café de Flore)", desc: "體驗左岸人文氣息，享用招牌熱巧克力與千層派", cost: 650 },
+                            { time: "17:30", title: "🛍️ 聖日耳曼德佩區 (Saint-Germain) 逛街與晚餐", desc: "精品小店探索與在地法式餐廳晚餐", cost: 1200 }
+                        ]
+                    },
+                    { 
+                        date: "2/6", week: "六", title: "凡爾賽宮奢華巡禮與瑪黑區探索", 
+                        items: [
+                            { time: "08:30", title: "🏰 凡爾賽宮 (Château de Versailles) & 花園", desc: "搭乘 RER C 線直達，參觀華麗鏡廳 (Galerie des Glaces) 與國王寢宮", cost: 1800 },
+                            { time: "14:30", title: "🎨 奧塞美術館 (Musée d'Orsay)", desc: "欣賞梵谷、莫內、雷諾瓦等印象派名家經典畫作", cost: 1600 },
+                            { time: "18:00", title: "🍷 瑪黑區 (Le Marais) 文青小店巡禮 & 晚餐", desc: "探索設計師小店、古著店與特色法式小館", cost: 1200 }
+                        ]
+                    },
+                    { 
+                        date: "2/7", week: "日", title: "建築美學、時尚購物與凱旋門夜景", 
+                        items: [
+                            { time: "09:30", title: "🏛️ 加尼葉歌劇院 (Palais Garnier)", desc: "參觀金碧輝煌的大樓梯與歌劇院內部巴洛克建築", cost: 1200 },
+                            { time: "12:30", title: "🛍️ 老佛爺百貨 & 春天百貨購物", desc: "至老佛爺頂樓觀景台免費俯瞰巴黎全市，辦理退稅手續", cost: 0 },
+                            { time: "17:30", title: "🏛️ 香榭麗舍大道 & 凱旋門 (Arc de Triomphe) 登頂", desc: "攀登凱旋門頂樓，遠眺 12 條大道交會的壯麗夜景", cost: 1100 }
+                        ]
+                    },
+                    { 
+                        date: "2/8", week: "一", title: "印象派光影與西堤島人文歷史", 
+                        items: [
+                            { time: "10:00", title: "🖼️ 橘園美術館 (Musée de l'Orangerie)", desc: "欣賞莫內 360 度環景巨幅《睡蓮》與印象派作品", cost: 1100 },
+                            { time: "12:30", title: "📚 莎士比亞書店 & 左岸舊書攤", desc: "參訪著名英文書店，體驗塞納河左岸人文風情", cost: 300 },
+                            { time: "14:30", title: "⛪ 巴黎聖母院 (Notre-Dame) 外圍 & 西堤島散步", desc: "漫步西堤島與古老街區", cost: 0 },
+                            { time: "17:00", title: "🎨 龐畢度中心 (Centre Pompidou)", desc: "參觀水管造型現代建築與現代藝術展", cost: 800 }
+                        ]
+                    },
+                    { 
+                        date: "2/9", week: "二", title: "離懷巴黎・前往戴高樂機場返台", 
+                        items: [
+                            { time: "08:00", title: "🏨 退房並出發前往機場", desc: "搭乘 RER B 或預約專車前往戴高樂機場 Terminal 2", cost: 500 },
+                            { time: "08:40", title: "✈️ 戴高樂機場辦理退稅、Check-in 與登機", desc: "搭乘長榮 BR88 (11:20 起飛) 順利返台", cost: 0 }
+                        ]
+                    }
+                ],
+                tickets: [
+                    { title: "羅浮宮快速通關門票", status: "已預約", date: "2/5 09:00", note: "預約號碼: LUV-889" },
+                    { title: "艾菲爾鐵塔登頂門票", status: "待預訂", date: "2/4 14:00", note: "官網預約電梯" },
+                    { title: "凡爾賽宮 & 花園套票", status: "待預訂", date: "2/6 08:30", note: "含宮殿與花園" }
+                ],
+                packing: [
+                    { category: "重要證件與外幣", items: [{ name: "護照（效期6個月以上）", checked: true }, { name: "歐元現金與信用卡", checked: true }, { name: "申根保險單據", checked: true }] },
+                    { category: "電子與生活用品", items: [{ name: "歐洲 eSIM / 網卡", checked: true }, { name: "雙圓柱轉接頭 & 行動電源", checked: true }, { name: "長途飛行頸枕與保暖衣物", checked: false }] }
+                ],
+                expenses: [
+                    { desc: "巴黎 CitizenM 飯店 7晚", eur: 1200, twd: 42000, payer: "公費" },
+                    { desc: "羅浮宮門票 (雙人)", eur: 44, twd: 1540, payer: "公費" }
+                ]
+            },
             tokyo: {
                 country: "JP", currency: "JPY", rate: 0.22,
                 flight: "去程：星宇航空 JX800 (TPE ➔ NRT)\n回程：星宇航空 JX801 (NRT ➔ TPE)",
@@ -333,36 +403,11 @@
                     { date: "Day 2", week: "二", title: "淺草寺文化與晴空塔逛街", items: [
                         { time: "09:30", title: "⛩️ 淺草寺 & 仲見世通散步", desc: "參拜求籤、品嚐人形燒與抹茶冰淇淋", cost: 200 },
                         { time: "13:00", title: "🗼 東京晴空塔 (Tokyo Skytree)", desc: "登上 350m 展望台，晴空街道購物", cost: 800 }
-                    ]},
-                    { date: "Day 3", week: "三", title: "東京迪士尼樂園歡樂一日遊", items: [
-                        { time: "08:00", title: "🏰 東京迪士尼樂園 (Disneyland)", desc: "體驗美女與野獸、美女與野獸城堡燈光秀", cost: 2400 }
                     ]}
                 ],
-                tickets: [{ title: "Tokyo Subway 72hr Ticket", status: "已預約", date: "Day 1-3 通用", note: "機場兌換" }],
-                packing: [
-                    { category: "證件與外幣", items: [{ name: "護照", checked: true }, { name: "日圓現金 (建議 5-10萬)", checked: true }, { name: "Visit Japan Web 填寫", checked: true }] },
-                    { category: "電子產品", items: [{ name: "日本 eSIM / 網卡", checked: true }, { name: "行動電源", checked: true }] }
-                ],
-                expenses: [{ desc: "迪士尼樂園門票", eur: 10000, twd: 2200, payer: "公費" }]
-            },
-            paris: {
-                country: "FR", currency: "EUR", rate: 35,
-                flight: "去程：長榮航空 BR87 (07:45 抵達 CDG)\n回程：長榮航空 BR88 (11:20 起飛)",
-                hotel: "CitizenM Paris Gare de Lyon (8 Rue de Van Gogh, Paris)",
-                days: [
-                    { date: "2/3-2/4", week: "三→四", title: "初抵巴黎・經典地標與塞納河畔", items: [
-                        { time: "07:45", title: "✈️ 戴高樂機場 (CDG) 抵達與入境", desc: "辦理入境與提領行李，購買 Navigo 週票", cost: 0 },
-                        { time: "14:00", title: "🗼 艾菲爾鐵塔 & 戰神廣場", desc: "經典地標巡禮，登上鐵塔觀景台", cost: 1200 },
-                        { time: "17:30", title: "🚢 塞納河景觀遊船", desc: "乘船欣賞巴黎聖母院與兩岸夜景", cost: 650 }
-                    ]},
-                    { date: "2/5", week: "五", title: "藝術巡禮・羅浮宮與左岸咖啡時光", items: [
-                        { time: "09:00", title: "🖼️ 羅浮宮博物館", desc: "預約快速通關，欣賞蒙娜麗莎", cost: 800 },
-                        { time: "15:00", title: "☕ 花神咖啡館 (Café de Flore)", desc: "體驗左岸人文氣息與下午茶", cost: 650 }
-                    ]}
-                ],
-                tickets: [{ title: "羅浮宮門票", status: "已預約", date: "2/5 09:30", note: "預約號碼: LUV-889" }],
-                packing: [{ category: "重要證件", items: [{ name: "護照與影本", checked: true }, { name: "申根保險單", checked: false }] }],
-                expenses: [{ desc: "巴黎飯店 7晚", eur: 1200, twd: 42000, payer: "公費" }]
+                tickets: [{ title: "Tokyo Subway 72hr Ticket", status: "已預約", date: "Day 1-3", note: "機場兌換" }],
+                packing: [{ category: "隨身物品", items: [{ name: "護照", checked: true }, { name: "日圓現金", checked: true }] }],
+                expenses: [{ desc: "迪士尼門票", eur: 10000, twd: 2200, payer: "公費" }]
             }
         };
 
@@ -377,8 +422,8 @@
                     currency: "EUR",
                     rate: 35,
                     activeDayIndex: 0,
-                    flight: "去程：長榮 BR87 | 回程：長榮 BR88",
-                    hotel: "CitizenM Paris Gare de Lyon",
+                    flight: presetTemplates.paris.flight,
+                    hotel: presetTemplates.paris.hotel,
                     days: presetTemplates.paris.days,
                     tickets: presetTemplates.paris.tickets,
                     packing: presetTemplates.paris.packing,
@@ -465,9 +510,14 @@
             const local = localStorage.getItem('multi_travel_app_data');
             if (local) {
                 try { 
-                    masterData = JSON.parse(local); 
-                    if (!masterData.trips || Object.keys(masterData.trips).length === 0) {
-                        throw new Error("Invalid structure");
+                    const parsed = JSON.parse(local); 
+                    if (parsed && parsed.trips && Object.keys(parsed.trips).length > 0) {
+                        masterData = parsed;
+                        // 若本地 paris_2027 只有 2 天，自動補齊至完整的 6 天
+                        if (masterData.trips["paris_2027"] && masterData.trips["paris_2027"].days.length < 6) {
+                            masterData.trips["paris_2027"].days = presetTemplates.paris.days;
+                            saveLocal();
+                        }
                     }
                 } catch(e) { 
                     console.error("Resetting masterData", e); 
@@ -512,6 +562,11 @@
                     const fetchedData = await response.json();
                     if (fetchedData && fetchedData.trips) {
                         masterData = fetchedData;
+                        // 如果雲端舊資料天的數量不足 6 天，補充完整
+                        if (masterData.trips["paris_2027"] && masterData.trips["paris_2027"].days.length < 6) {
+                            masterData.trips["paris_2027"].days = presetTemplates.paris.days;
+                            await pushDataToGoogleSheets();
+                        }
                         localStorage.setItem('multi_travel_app_data', JSON.stringify(masterData));
                         renderAll();
                         updateSyncBadge(true, "🟢 Google 雲端已同步");
@@ -591,9 +646,9 @@
 
         function openNewTripModal() {
             document.getElementById('new-trip-name').value = "";
-            document.getElementById('new-trip-country').value = "JP";
-            document.getElementById('new-trip-currency').value = "JPY";
-            document.getElementById('new-trip-rate').value = "0.22";
+            document.getElementById('new-trip-country').value = "FR";
+            document.getElementById('new-trip-currency').value = "EUR";
+            document.getElementById('new-trip-rate').value = "35";
             document.getElementById('new-trip-modal').classList.remove('hidden');
         }
 
@@ -615,8 +670,8 @@
             recordStateForUndo();
             const name = document.getElementById('new-trip-name').value.trim() || "新旅遊行程";
             const templateKey = document.getElementById('new-trip-template').value;
-            const country = (document.getElementById('new-trip-country').value || "JP").toUpperCase();
-            const currency = (document.getElementById('new-trip-currency').value || "JPY").toUpperCase();
+            const country = (document.getElementById('new-trip-country').value || "FR").toUpperCase();
+            const currency = (document.getElementById('new-trip-currency').value || "EUR").toUpperCase();
             const rate = Number(document.getElementById('new-trip-rate').value || 1);
 
             const newId = 'trip_' + Date.now();
@@ -678,6 +733,10 @@
             const container = document.getElementById('day-selector');
             container.innerHTML = '';
             
+            if (currentTrip.activeDayIndex >= currentTrip.days.length) {
+                currentTrip.activeDayIndex = 0;
+            }
+
             currentTrip.days.forEach((day, index) => {
                 const active = index === currentTrip.activeDayIndex;
                 const btn = document.createElement('button');
@@ -702,6 +761,8 @@
             const currentTrip = getCurrentTrip();
             const currentDay = currentTrip.days[currentTrip.activeDayIndex] || currentTrip.days[0];
             
+            if (!currentDay) return;
+
             document.getElementById('day-header-title').textContent = `${currentDay.date} (${currentDay.week}) - ${currentDay.title}`;
             document.getElementById('day-header-desc').textContent = `共 ${currentDay.items.length} 個行程景點`;
 
