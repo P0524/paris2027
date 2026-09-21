@@ -127,7 +127,7 @@
                 <i class="fa-solid fa-suitcase mr-1"></i> 行李清單
             </button>
             <button onclick="switchTab('budget')" id="tab-btn-budget" class="tab-btn flex-1 min-w-[75px] py-2 px-3 text-xs sm:text-sm font-bold text-slate-500 rounded-xl hover:text-slate-900 transition-all">
-                <i class="fa-solid fa-calculator mr-1"></i> 記帳外幣
+                <i class="fa-solid fa-calculator mr-1"></i> 預算
             </button>
         </nav>
 
@@ -263,24 +263,10 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Legacy Expenses Section (Hidden or integrated) -->
-            <div class="hidden bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-slate-800">費用明細</h3>
-                    <button onclick="addExpense()" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-500 transition-all">
-                        <i class="fa-solid fa-plus mr-1"></i>新增消費
-                    </button>
-                </div>
-                <div id="expenses-list" class="divide-y divide-slate-100">
-                    <!-- Dynamic rendering -->
-                </div>
-            </div>
         </section>
 
     </main>
 
-    <!-- Item Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -423,45 +409,33 @@
                 ],
                 tickets: [
                     { category: "景點門票", title: "巴黎歌劇院 Palais Garnier", status: "已購買", cost: 999, type: "景點門票", note: "若要進內部參觀需訂票" },
-                    { category: "景點門票", title: "羅浮宮 Louvre", status: "尚未購買", cost: 2000, type: "景點門票", note: "務必提前線上預約時段" },
+                    { category: "景點門票", title: "羅浮宮 Louvre", status: "已預約", cost: 2000, type: "景點門票", note: "預約號碼: LUV-889" },
                     { category: "景點門票", title: "凱旋門登頂", status: "尚未購買", cost: 1120, type: "景點門票", note: "訂購時段" },
                     { category: "景點門票", title: "艾菲爾鐵塔", status: "尚未購買", cost: 2450, type: "景點門票", note: "建議提前預約時段" },
                     { category: "景點門票", title: "塞納河遊船", status: "尚未購買", cost: 1225, type: "景點門票", note: "遊船欣賞夕陽" },
                     { category: "景點門票", title: "凡爾賽宮", status: "尚未購買", cost: 1470, type: "景點門票", note: "宮殿+花園套票" },
-                    { category: "交通類", title: "市區交通費用 (地鐵 / 計程車)", status: "已購買", cost: 3000, type: "交通", note: "地鐵與計程車統一管理", checked: true }
+                    { category: "景點門票", title: "聖米歇爾山一日遊團票", status: "尚未購買", cost: 4000, type: "景點門票", note: "約 NT$2,000/人" },
+                    { category: "景點門票", title: "迪士尼樂園：一日兩園＋Premium Access", status: "尚未購買", cost: 0, type: "景點門票", note: "請填入實際票價" },
+                    { category: "交通類", title: "市區交通費用 (地鐵 / 計程車)", status: "已購買", cost: 3000, type: "交通", note: "原本分散在每日行程的地鐵、計程車費用，已併到這裡，方便統一管理，可依實際網址調整", checked: false }
                 ],
                 packing: [
-                    { category: "行前準備 / 行李清單", items: [
-                        { name: "護照 (效期6個月以上)", checked: false },
-                        { name: "機票、飯店訂單截圖/紙本", checked: false },
-                        { name: "歐元現金＋信用卡", checked: false },
-                        { name: "旅平險保單", checked: false },
-                        { name: "歐洲上網 eSIM", checked: false },
-                        { name: "手機充電線、歐規轉接頭、行動電源", checked: false },
-                        { name: "保暖外套、圍巾、手套、毛帽", checked: false },
-                        { name: "常備藥品", checked: false },
-                        { name: "環保購物袋", checked: false }
-                    ]}
+                    { 
+                        category: "行前準備 / 行李清單", 
+                        items: [
+                            { name: "護照與影本", checked: true },
+                            { name: "申根保險單", checked: false },
+                            { name: "機票、飯店訂單截圖/紙本", checked: false },
+                            { name: "歐元現金＋信用卡（雙卡分開放）", checked: false },
+                            { name: "旅平險保單", checked: false },
+                            { name: "歐洲上網 eSIM", checked: false },
+                            { name: "手機充電線、歐規轉接頭、行動電源", checked: false },
+                            { name: "保暖外套、圍巾、手套、毛帽", checked: false },
+                            { name: "防水鞋", checked: false },
+                            { name: "常備藥品", checked: false },
+                            { name: "環保購物袋（法國超市多需自備）", checked: false }
+                        ] 
+                    }
                 ],
-                expenses: [
-                    { desc: "巴黎 CitizenM 飯店 7晚", eur: 1200, twd: 42000, payer: "公費" },
-                    { desc: "羅浮宮門票 (雙人)", eur: 44, twd: 1540, payer: "公費" }
-                ]
-            },
-            tokyo: {
-                country: "JP", currency: "JPY", rate: 0.22, budget: 150000,
-                manualFlight: 50000, manualShopping: 10000, manualHotel: 0,
-                flight: "去程：星宇航空 JX800 (TPE ➔ NRT)\n回程：星宇航空 JX801 (NRT ➔ TPE)",
-                hotel: "Shibuya Stream Excel Hotel Tokyu (澀谷)",
-                days: [
-                    { date: "Day 1", week: "一", title: "抵達東京・澀谷晴空塔", items: [
-                        { time: "12:00", title: "✈️ 成田機場抵達 & 搭乘 Skyliner", desc: "購買 Skyliner + 東京地鐵 72 小時券", cost: 500 },
-                        { time: "15:00", title: "🏨 飯店 Check-in & 澀谷 Sky 觀景台", desc: "預約 16:30 日落場次俯瞰東京夜景", cost: 600 },
-                        { time: "19:00", title: "🍜 敘敘苑燒肉 (澀谷店)", desc: "享用高空景觀燒肉晚餐", cost: 2000 }
-                    ]}
-                ],
-                tickets: [{ category: "交通類", title: "Tokyo Subway 72hr Ticket", status: "已預約", cost: 1500, type: "交通", note: "機場兌換", checked: true }],
-                packing: [{ category: "隨身物品", items: [{ name: "護照", checked: true }, { name: "日圓現金", checked: true }] }],
                 expenses: []
             }
         };
@@ -499,7 +473,7 @@
             initLocalStorage();
             if (gasUrl) {
                 document.getElementById('gas-url-input').value = gasUrl;
-                updateSyncBadge(true, "🟢 Google 雲端連線中");
+                updateSyncBadge(true, "🟢 Google 試算表連線中");
                 syncWithGoogleSheets(true);
             }
             renderAll();
@@ -929,7 +903,8 @@
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div class="flex items-center space-x-2">
                                 <select onchange="updateTicketStatus(${i}, this.value)" class="text-xs font-bold px-2 py-1 rounded-lg border cursor-pointer ${isBought ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-slate-200 text-slate-700 border-slate-300'}">
-                                    <option value="已購買" ${isBought ? 'selected' : ''}>已購買</option>
+                                    <option value="已購買" ${t.status === "已購買" ? 'selected' : ''}>已購買</option>
+                                    <option value="已預約" ${t.status === "已預約" ? 'selected' : ''}>已預約</option>
                                     <option value="尚未購買" ${!isBought ? 'selected' : ''}>尚未購買</option>
                                 </select>
                                 <input type="text" value="${t.title}" onchange="updateTicketField(${i}, 'title', this.value)" class="font-bold text-slate-800 text-xs sm:text-sm bg-transparent border-b border-dashed border-slate-300 focus:outline-none focus:border-blue-500 px-1 py-0.5">
@@ -1000,7 +975,7 @@
 
             html += `
                 <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap justify-between items-center gap-2">
-                    <span class="text-xs font-bold text-slate-600">票券總費用：<span class="text-blue-900 text-sm font-black">NT$${grandTotal.toLocaleString()}</span></span>
+                    <span class="text-xs font-bold text-slate-600">票券總費用 (2人)：<span class="text-blue-900 text-sm font-black">NT$${grandTotal.toLocaleString()}</span></span>
                     <button onclick="addTicket()" class="bg-blue-900 hover:bg-blue-800 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition-all shadow">
                         <i class="fa-solid fa-plus mr-1"></i>新增票券項目
                     </button>
@@ -1109,18 +1084,15 @@
         function renderBudget() {
             const trip = getCurrentTrip();
 
-            // Set input values
             document.getElementById('trip-budget-input').value = trip.budget !== undefined ? trip.budget : 150000;
             document.getElementById('manual-flight-input').value = trip.manualFlight || 0;
             document.getElementById('manual-shopping-input').value = trip.manualShopping || 0;
             document.getElementById('manual-hotel-input').value = trip.manualHotel || 0;
 
-            // Compute category totals
             let flightTotal = Number(trip.manualFlight || 0);
             let shoppingTotal = Number(trip.manualShopping || 0);
             let hotelTotal = Number(trip.manualHotel || 0);
 
-            // Compute attraction & transport from tickets
             let attractionTotal = 0;
             let transportTotal = 0;
             if (trip.tickets) {
@@ -1134,7 +1106,6 @@
                 });
             }
 
-            // Compute dining from daily itinerary items or extra expenses
             let diningTotal = 0;
             if (trip.days) {
                 trip.days.forEach(day => {
@@ -1153,15 +1124,12 @@
                 });
             }
 
-            let otherTotal = 0; // miscellaneous
-
+            let otherTotal = 0;
             let grandEstimatedCost = flightTotal + shoppingTotal + attractionTotal + diningTotal + transportTotal + otherTotal + hotelTotal;
 
-            // Update top cards
             document.getElementById('top-total-budget').textContent = `NT$${Number(trip.budget || 150000).toLocaleString()}`;
             document.getElementById('top-estimated-cost').textContent = `NT$${grandEstimatedCost.toLocaleString()}`;
 
-            // Progress bar
             const budgetLimit = Number(trip.budget || 150000);
             const percentage = budgetLimit > 0 ? Math.round((grandEstimatedCost / budgetLimit) * 100) : 0;
             const progressBar = document.getElementById('budget-progress-bar');
@@ -1174,7 +1142,6 @@
                 progressBar.className = "bg-blue-600 h-full transition-all duration-300";
             }
 
-            // Render category breakdown list
             const breakdownContainer = document.getElementById('category-breakdown-list');
             breakdownContainer.innerHTML = `
                 <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">機票</span><span class="font-bold text-slate-900">NT$${flightTotal.toLocaleString()}</span></div>
@@ -1282,26 +1249,6 @@
             trip.tickets.splice(i, 1);
             saveLocal();
             renderTickets();
-            renderBudget();
-        }
-
-        function addExpense() {
-            const trip = getCurrentTrip();
-            const desc = prompt("請輸入消費項目名稱:", "餐廳晚餐 / 紀念品");
-            if (!desc) return;
-            const foreignAmt = Number(prompt(`請輸入金額 (${trip.currency}):`, "1000") || 0);
-            recordStateForUndo();
-            const twdAmt = foreignAmt * trip.rate;
-            trip.expenses.push({ desc, eur: foreignAmt, twd: twdAmt, payer: "公費" });
-            saveLocal();
-            renderBudget();
-        }
-
-        function deleteExpense(i) {
-            recordStateForUndo();
-            const trip = getCurrentTrip();
-            trip.expenses.splice(i, 1);
-            saveLocal();
             renderBudget();
         }
 
