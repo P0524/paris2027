@@ -75,7 +75,7 @@
                         <i class="fa-solid fa-plus"></i>
                         <span class="hidden sm:inline">新增/複製行程</span>
                     </button>
-                    <!-- 復原按鈕 -->
+                    <!-- Undo Action Button -->
                     <button id="undo-btn" onclick="undoLastAction()" disabled class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs px-2.5 py-1.5 rounded-lg shadow flex items-center space-x-1.5 border border-slate-700 transition-all opacity-50 cursor-not-allowed" title="復原上一步驟 (Ctrl+Z)">
                         <i class="fa-solid fa-rotate-left text-amber-400"></i>
                         <span>復原<span id="undo-count" class="hidden sm:inline text-[10px] text-amber-300 ml-0.5"></span></span>
@@ -131,6 +131,7 @@
             </button>
         </nav>
 
+        <!-- Tab 1: Itinerary -->
         <section id="tab-itinerary" class="tab-content space-y-4">
             <div id="day-selector" class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar">
                 <!-- Dynamically populated -->
@@ -156,6 +157,7 @@
             </button>
         </section>
 
+        <!-- Tab 2: Overview & Accommodation -->
         <section id="tab-overview" class="tab-content hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
@@ -180,55 +182,90 @@
             </div>
         </section>
 
+        <!-- Tab 3: Tickets & Transport -->
         <section id="tab-tickets" class="tab-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
-                <div>
-                    <h2 class="font-bold text-slate-800">景點門票與交通票券</h2>
-                    <p class="text-xs text-slate-500">預訂狀態與預約時間記錄</p>
-                </div>
-                <button onclick="addTicket()" class="bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-blue-800 transition-all">
-                    <i class="fa-solid fa-plus mr-1"></i>新增票券
-                </button>
-            </div>
-
-            <div id="tickets-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <!-- Dynamic loading -->
+            <div id="tickets-container" class="space-y-4">
+                <!-- Populated dynamically -->
             </div>
         </section>
 
+        <!-- Tab 4: Packing Checklist -->
         <section id="tab-packing" class="tab-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="font-bold text-slate-800">行李準備清單</h2>
-                    <span id="packing-progress" class="text-xs font-bold text-blue-900 bg-blue-50 px-2.5 py-1 rounded-full">0/0 完成</span>
-                </div>
-                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                    <div id="packing-progress-bar" class="bg-emerald-500 h-full transition-all duration-300 w-0"></div>
-                </div>
-            </div>
-
-            <div id="packing-categories" class="space-y-4">
-                <!-- Dynamically populated -->
+            <div id="packing-container" class="space-y-4">
+                <!-- Populated dynamically -->
             </div>
         </section>
 
+        <!-- Tab 5: Budget & Foreign Currency -->
         <section id="tab-budget" class="tab-content hidden space-y-4">
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Top Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center">
-                    <p id="currency-label" class="text-xs text-slate-500 mb-1">總支出 (外幣)</p>
-                    <p id="total-foreign" class="text-xl font-black text-blue-900">0</p>
+                    <p class="text-xs text-slate-500 mb-1">總預算 (2人)</p>
+                    <p id="top-total-budget" class="text-xl font-black text-slate-900 mt-1">NT$300,000</p>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center">
-                    <p class="text-xs text-slate-500 mb-1">折合台幣 (TWD)</p>
-                    <p id="total-twd" class="text-xl font-black text-amber-600">NT$0</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm text-center col-span-2 sm:col-span-1">
-                    <p class="text-xs text-slate-500 mb-1">匯率設定</p>
-                    <p id="rate-display" class="text-sm font-bold text-slate-700 mt-1">1 Foreign ≈ TWD</p>
+                    <p class="text-xs text-slate-500 mb-1">目前預估花費</p>
+                    <p id="top-estimated-cost" class="text-xl font-black text-blue-900 mt-1">NT$0</p>
                 </div>
             </div>
 
-            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+            <!-- Budget Progress Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                    <div id="budget-progress-bar" class="bg-blue-600 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div class="flex items-center space-x-2 text-slate-900 font-bold border-b pb-2.5">
+                    <span class="text-rose-500">■</span>
+                    <span>分類花費 (已含機票)</span>
+                </div>
+                <div id="category-breakdown-list" class="divide-y divide-slate-100 text-xs">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+
+            <!-- Manual Input Costs Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <div class="flex items-center space-x-2 text-slate-900 font-bold border-b pb-2.5">
+                    <i class="fa-solid fa-pen-to-square text-slate-600"></i>
+                    <span>手動填寫的費用</span>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-slate-600 font-semibold mb-1">✈️ 機票費用 (2人總額，TWD)</label>
+                        <input type="number" id="manual-flight-input" onchange="updateManualExpense('flight', this.value)" class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 text-sm" placeholder="100000">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-semibold mb-1">🛍️ 購物費用 (2人總額，TWD)</label>
+                        <input type="number" id="manual-shopping-input" onchange="updateManualExpense('shopping', this.value)" class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 text-sm" placeholder="20000">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-semibold mb-1">🏨 住宿費用 (2人總額，TWD)</label>
+                        <input type="number" id="manual-hotel-input" onchange="updateManualExpense('hotel', this.value)" class="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 text-sm" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adjust Total Budget Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                <div class="flex items-center space-x-2 text-slate-900 font-bold border-b pb-2.5">
+                    <i class="fa-solid fa-pen text-amber-500"></i>
+                    <span>調整每人總預算</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="number" id="trip-budget-input" placeholder="150000" class="flex-1 border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 text-sm">
+                    <button onclick="updateTripBudget(document.getElementById('trip-budget-input').value)" class="bg-blue-900 hover:bg-blue-800 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all">
+                        更新每人總預算
+                    </button>
+                </div>
+            </div>
+
+            <!-- Legacy Expenses Section (Hidden or integrated) -->
+            <div class="hidden bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="font-bold text-slate-800">費用明細</h3>
                     <button onclick="addExpense()" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-500 transition-all">
@@ -243,6 +280,7 @@
 
     </main>
 
+    <!-- Item Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -274,6 +312,7 @@
         </div>
     </div>
 
+    <!-- New Trip Modal -->
     <div id="new-trip-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
@@ -304,9 +343,15 @@
                         <input type="text" id="new-trip-currency" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="EUR">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-slate-600 font-semibold mb-1">參考匯率 (1外幣 ≈ 多少台幣 TWD)</label>
-                    <input type="number" step="0.0001" id="new-trip-rate" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="35">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-600 font-semibold mb-1">外幣預算上限</label>
+                        <input type="number" id="new-trip-budget" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="2000">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-semibold mb-1">參考匯率 (1外幣 ≈ TWD)</label>
+                        <input type="number" step="0.0001" id="new-trip-rate" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="35">
+                    </div>
                 </div>
             </div>
             <div class="flex space-x-2 pt-2">
@@ -317,10 +362,10 @@
     </div>
 
     <script>
-        // Preset Trip Templates with full 7 Days 6 Nights for Paris
         const presetTemplates = {
             paris: {
-                country: "FR", currency: "EUR", rate: 35,
+                country: "FR", currency: "EUR", rate: 35, budget: 150000,
+                manualFlight: 100000, manualShopping: 20000, manualHotel: 0,
                 flight: "去程：長榮航空 BR87 | 23:05 台北(TPE) ➔ 02/04 07:45 巴黎戴高樂(CDG)\n回程：長榮航空 BR88 | 11:20 巴黎戴高樂(CDG) ➔ 02/10 06:30 台北(TPE)",
                 hotel: "CitizenM Paris Gare de Lyon (地址：8 Rue de Van Gogh, 75012 Paris)",
                 days: [
@@ -377,13 +422,26 @@
                     }
                 ],
                 tickets: [
-                    { title: "羅浮宮快速通關門票", status: "已預約", date: "2/5 09:00", note: "預約號碼: LUV-889" },
-                    { title: "艾菲爾鐵塔登頂門票", status: "待預訂", date: "2/4 14:00", note: "官網預約電梯" },
-                    { title: "凡爾賽宮 & 花園套票", status: "待預訂", date: "2/6 08:30", note: "含宮殿與花園" }
+                    { category: "景點門票", title: "巴黎歌劇院 Palais Garnier", status: "已購買", cost: 999, type: "景點門票", note: "若要進內部參觀需訂票" },
+                    { category: "景點門票", title: "羅浮宮 Louvre", status: "尚未購買", cost: 2000, type: "景點門票", note: "務必提前線上預約時段" },
+                    { category: "景點門票", title: "凱旋門登頂", status: "尚未購買", cost: 1120, type: "景點門票", note: "訂購時段" },
+                    { category: "景點門票", title: "艾菲爾鐵塔", status: "尚未購買", cost: 2450, type: "景點門票", note: "建議提前預約時段" },
+                    { category: "景點門票", title: "塞納河遊船", status: "尚未購買", cost: 1225, type: "景點門票", note: "遊船欣賞夕陽" },
+                    { category: "景點門票", title: "凡爾賽宮", status: "尚未購買", cost: 1470, type: "景點門票", note: "宮殿+花園套票" },
+                    { category: "交通類", title: "市區交通費用 (地鐵 / 計程車)", status: "已購買", cost: 3000, type: "交通", note: "地鐵與計程車統一管理", checked: true }
                 ],
                 packing: [
-                    { category: "重要證件與外幣", items: [{ name: "護照（效期6個月以上）", checked: true }, { name: "歐元現金與信用卡", checked: true }, { name: "申根保險單據", checked: true }] },
-                    { category: "電子與生活用品", items: [{ name: "歐洲 eSIM / 網卡", checked: true }, { name: "雙圓柱轉接頭 & 行動電源", checked: true }, { name: "長途飛行頸枕與保暖衣物", checked: false }] }
+                    { category: "行前準備 / 行李清單", items: [
+                        { name: "護照 (效期6個月以上)", checked: false },
+                        { name: "機票、飯店訂單截圖/紙本", checked: false },
+                        { name: "歐元現金＋信用卡", checked: false },
+                        { name: "旅平險保單", checked: false },
+                        { name: "歐洲上網 eSIM", checked: false },
+                        { name: "手機充電線、歐規轉接頭、行動電源", checked: false },
+                        { name: "保暖外套、圍巾、手套、毛帽", checked: false },
+                        { name: "常備藥品", checked: false },
+                        { name: "環保購物袋", checked: false }
+                    ]}
                 ],
                 expenses: [
                     { desc: "巴黎 CitizenM 飯店 7晚", eur: 1200, twd: 42000, payer: "公費" },
@@ -391,7 +449,8 @@
                 ]
             },
             tokyo: {
-                country: "JP", currency: "JPY", rate: 0.22,
+                country: "JP", currency: "JPY", rate: 0.22, budget: 150000,
+                manualFlight: 50000, manualShopping: 10000, manualHotel: 0,
                 flight: "去程：星宇航空 JX800 (TPE ➔ NRT)\n回程：星宇航空 JX801 (NRT ➔ TPE)",
                 hotel: "Shibuya Stream Excel Hotel Tokyu (澀谷)",
                 days: [
@@ -399,19 +458,14 @@
                         { time: "12:00", title: "✈️ 成田機場抵達 & 搭乘 Skyliner", desc: "購買 Skyliner + 東京地鐵 72 小時券", cost: 500 },
                         { time: "15:00", title: "🏨 飯店 Check-in & 澀谷 Sky 觀景台", desc: "預約 16:30 日落場次俯瞰東京夜景", cost: 600 },
                         { time: "19:00", title: "🍜 敘敘苑燒肉 (澀谷店)", desc: "享用高空景觀燒肉晚餐", cost: 2000 }
-                    ]},
-                    { date: "Day 2", week: "二", title: "淺草寺文化與晴空塔逛街", items: [
-                        { time: "09:30", title: "⛩️ 淺草寺 & 仲見世通散步", desc: "參拜求籤、品嚐人形燒與抹茶冰淇淋", cost: 200 },
-                        { time: "13:00", title: "🗼 東京晴空塔 (Tokyo Skytree)", desc: "登上 350m 展望台，晴空街道購物", cost: 800 }
                     ]}
                 ],
-                tickets: [{ title: "Tokyo Subway 72hr Ticket", status: "已預約", date: "Day 1-3", note: "機場兌換" }],
+                tickets: [{ category: "交通類", title: "Tokyo Subway 72hr Ticket", status: "已預約", cost: 1500, type: "交通", note: "機場兌換", checked: true }],
                 packing: [{ category: "隨身物品", items: [{ name: "護照", checked: true }, { name: "日圓現金", checked: true }] }],
-                expenses: [{ desc: "迪士尼門票", eur: 10000, twd: 2200, payer: "公費" }]
+                expenses: []
             }
         };
 
-        // Multi-Trip Master Data Object
         let masterData = {
             activeTripId: "paris_2027",
             trips: {
@@ -421,6 +475,10 @@
                     country: "FR",
                     currency: "EUR",
                     rate: 35,
+                    budget: 150000,
+                    manualFlight: 100000,
+                    manualShopping: 20000,
+                    manualHotel: 0,
                     activeDayIndex: 0,
                     flight: presetTemplates.paris.flight,
                     hotel: presetTemplates.paris.hotel,
@@ -434,7 +492,6 @@
 
         let gasUrl = localStorage.getItem('paris_gas_url') || "";
         let editItemIndex = null;
-
         let undoStack = [];
         const MAX_UNDO = 20;
 
@@ -513,14 +570,25 @@
                     const parsed = JSON.parse(local); 
                     if (parsed && parsed.trips && Object.keys(parsed.trips).length > 0) {
                         masterData = parsed;
-                        // 若本地 paris_2027 只有 2 天，自動補齊至完整的 6 天
-                        if (masterData.trips["paris_2027"] && masterData.trips["paris_2027"].days.length < 6) {
-                            masterData.trips["paris_2027"].days = presetTemplates.paris.days;
+                        Object.values(masterData.trips).forEach(trip => {
+                            if (trip.budget === undefined) trip.budget = 150000;
+                            if (trip.manualFlight === undefined) trip.manualFlight = 0;
+                            if (trip.manualShopping === undefined) trip.manualShopping = 0;
+                            if (trip.manualHotel === undefined) trip.manualHotel = 0;
+                        });
+                        if (masterData.trips["paris_2027"]) {
+                            if (!masterData.trips["paris_2027"].tickets || masterData.trips["paris_2027"].tickets.length === 0) {
+                                masterData.trips["paris_2027"].tickets = presetTemplates.paris.tickets;
+                            }
+                            if (!masterData.trips["paris_2027"].packing || masterData.trips["paris_2027"].packing.length === 0) {
+                                masterData.trips["paris_2027"].packing = presetTemplates.paris.packing;
+                            }
                             saveLocal();
                         }
                     }
                 } catch(e) { 
                     console.error("Resetting masterData", e); 
+                    saveLocal();
                 }
             } else {
                 saveLocal();
@@ -562,11 +630,12 @@
                     const fetchedData = await response.json();
                     if (fetchedData && fetchedData.trips) {
                         masterData = fetchedData;
-                        // 如果雲端舊資料天的數量不足 6 天，補充完整
-                        if (masterData.trips["paris_2027"] && masterData.trips["paris_2027"].days.length < 6) {
-                            masterData.trips["paris_2027"].days = presetTemplates.paris.days;
-                            await pushDataToGoogleSheets();
-                        }
+                        Object.values(masterData.trips).forEach(trip => {
+                            if (trip.budget === undefined) trip.budget = 150000;
+                            if (trip.manualFlight === undefined) trip.manualFlight = 0;
+                            if (trip.manualShopping === undefined) trip.manualShopping = 0;
+                            if (trip.manualHotel === undefined) trip.manualHotel = 0;
+                        });
                         localStorage.setItem('multi_travel_app_data', JSON.stringify(masterData));
                         renderAll();
                         updateSyncBadge(true, "🟢 Google 雲端已同步");
@@ -648,6 +717,7 @@
             document.getElementById('new-trip-name').value = "";
             document.getElementById('new-trip-country').value = "FR";
             document.getElementById('new-trip-currency').value = "EUR";
+            document.getElementById('new-trip-budget').value = "150000";
             document.getElementById('new-trip-rate').value = "35";
             document.getElementById('new-trip-modal').classList.remove('hidden');
         }
@@ -662,6 +732,7 @@
                 const t = presetTemplates[tKey];
                 document.getElementById('new-trip-country').value = t.country;
                 document.getElementById('new-trip-currency').value = t.currency;
+                document.getElementById('new-trip-budget').value = t.budget || 150000;
                 document.getElementById('new-trip-rate').value = t.rate;
             }
         }
@@ -672,15 +743,18 @@
             const templateKey = document.getElementById('new-trip-template').value;
             const country = (document.getElementById('new-trip-country').value || "FR").toUpperCase();
             const currency = (document.getElementById('new-trip-currency').value || "EUR").toUpperCase();
+            const budget = Number(document.getElementById('new-trip-budget').value || 150000);
             const rate = Number(document.getElementById('new-trip-rate').value || 1);
 
             const newId = 'trip_' + Date.now();
-            
             let templateData = presetTemplates[templateKey] || {
                 days: [{ date: "Day 1", week: "一", title: "第一天行程重點", items: [] }],
                 tickets: [],
-                packing: [{ category: "隨身物品", items: [{ name: "護照", checked: true }] }],
-                expenses: []
+                packing: [{ category: "行前準備 / 行李清單", items: [{ name: "護照", checked: false }] }],
+                expenses: [],
+                manualFlight: 0,
+                manualShopping: 0,
+                manualHotel: 0
             };
 
             masterData.trips[newId] = {
@@ -688,7 +762,11 @@
                 name: name,
                 country: country,
                 currency: currency,
+                budget: budget,
                 rate: rate,
+                manualFlight: templateData.manualFlight !== undefined ? templateData.manualFlight : 0,
+                manualShopping: templateData.manualShopping !== undefined ? templateData.manualShopping : 0,
+                manualHotel: templateData.manualHotel !== undefined ? templateData.manualHotel : 0,
                 activeDayIndex: 0,
                 flight: templateData.flight || "尚未輸入航班資訊",
                 hotel: templateData.hotel || "尚未輸入住宿資訊",
@@ -807,97 +885,198 @@
 
         function renderTickets() {
             const trip = getCurrentTrip();
-            const container = document.getElementById('tickets-list');
+            const container = document.getElementById('tickets-container');
             container.innerHTML = '';
-            trip.tickets.forEach((t, i) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex justify-between items-center";
-                card.innerHTML = `
-                    <div class="space-y-1">
-                        <span class="text-[10px] bg-blue-50 text-blue-800 font-bold px-2 py-0.5 rounded-full">${t.status}</span>
-                        <h4 class="font-bold text-slate-800 text-sm">${t.title}</h4>
-                        <p class="text-xs text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${t.date}</p>
-                        <p class="text-[11px] text-slate-400">${t.note}</p>
+
+            let attractionTickets = trip.tickets.filter(t => t.category === "景點門票" || !t.category);
+            let transportTickets = trip.tickets.filter(t => t.category === "交通類");
+
+            let attractionTotal = attractionTickets.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+            let transportTotal = transportTickets.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+            let grandTotal = attractionTotal + transportTotal;
+
+            let html = `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
+                    <div>
+                        <h2 class="font-bold text-slate-800 flex items-center space-x-2">
+                            <span class="text-rose-500">■</span> <span>票券待辦</span>
+                        </h2>
                     </div>
-                    <button onclick="deleteTicket(${i})" class="text-xs text-slate-300 hover:text-rose-500 p-2"><i class="fa-solid fa-trash"></i></button>
+                    <div class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+                        共 ${trip.tickets.length} 項
+                    </div>
+                </div>
+            `;
+
+            // Section 1: 景點門票
+            html += `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="font-bold text-xs text-slate-700 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-ticket text-amber-500"></i>
+                            <span>景點門票類</span>
+                        </span>
+                        <span class="font-black text-blue-900 text-sm">NT$${attractionTotal.toLocaleString()}</span>
+                    </div>
+                    <div class="space-y-3">
+            `;
+
+            trip.tickets.forEach((t, i) => {
+                if (t.category === "交通類") return;
+                const isBought = t.status === "已購買" || t.status === "已預約";
+                html += `
+                    <div class="p-3 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/60 transition-all space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center space-x-2">
+                                <select onchange="updateTicketStatus(${i}, this.value)" class="text-xs font-bold px-2 py-1 rounded-lg border cursor-pointer ${isBought ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-slate-200 text-slate-700 border-slate-300'}">
+                                    <option value="已購買" ${isBought ? 'selected' : ''}>已購買</option>
+                                    <option value="尚未購買" ${!isBought ? 'selected' : ''}>尚未購買</option>
+                                </select>
+                                <input type="text" value="${t.title}" onchange="updateTicketField(${i}, 'title', this.value)" class="font-bold text-slate-800 text-xs sm:text-sm bg-transparent border-b border-dashed border-slate-300 focus:outline-none focus:border-blue-500 px-1 py-0.5">
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex items-center bg-white border border-slate-300 rounded-lg px-2 py-1">
+                                    <i class="fa-solid fa-coins text-amber-500 text-xs mr-1"></i>
+                                    <input type="number" value="${t.cost || 0}" onchange="updateTicketField(${i}, 'cost', Number(this.value)); renderBudget();" class="w-20 text-xs font-bold text-slate-800 bg-transparent outline-none text-right">
+                                </div>
+                                <select onchange="updateTicketField(${i}, 'category', this.value)" class="text-xs bg-white border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-600">
+                                    <option value="景點門票" selected>景點門票</option>
+                                    <option value="交通類">交通類</option>
+                                </select>
+                                <button onclick="deleteTicket(${i})" class="text-slate-400 hover:text-rose-600 text-xs p-1.5"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="border-t border-dashed border-slate-200 pt-1.5 flex items-center justify-between">
+                            <input type="text" value="${t.note || ''}" placeholder="(在此新增備註，例如訂購連結、時段)" onchange="updateTicketField(${i}, 'note', this.value)" class="w-full text-[11px] text-slate-500 bg-transparent outline-none">
+                        </div>
+                    </div>
                 `;
-                container.appendChild(card);
             });
+            html += `</div></div>`;
+
+            // Section 2: 交通類
+            html += `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="font-bold text-xs text-slate-700 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-train-subway text-blue-600"></i>
+                            <span>交通類</span>
+                        </span>
+                        <span class="font-black text-blue-900 text-sm">NT$${transportTotal.toLocaleString()}</span>
+                    </div>
+                    <div class="space-y-3">
+            `;
+
+            trip.tickets.forEach((t, i) => {
+                if (t.category !== "交通類") return;
+                html += `
+                    <div class="p-3 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/60 transition-all space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center space-x-2">
+                                <label class="flex items-center space-x-1.5 cursor-pointer">
+                                    <input type="checkbox" ${t.checked ? 'checked' : ''} onchange="toggleTicketCheck(${i})" class="w-4 h-4 text-blue-900 rounded border-slate-300">
+                                </label>
+                                <input type="text" value="${t.title}" onchange="updateTicketField(${i}, 'title', this.value)" class="font-bold text-slate-800 text-xs sm:text-sm bg-transparent border-b border-dashed border-slate-300 focus:outline-none focus:border-blue-500 px-1 py-0.5">
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex items-center bg-white border border-slate-300 rounded-lg px-2 py-1">
+                                    <i class="fa-solid fa-coins text-amber-500 text-xs mr-1"></i>
+                                    <input type="number" value="${t.cost || 0}" onchange="updateTicketField(${i}, 'cost', Number(this.value)); renderBudget();" class="w-20 text-xs font-bold text-slate-800 bg-transparent outline-none text-right">
+                                </div>
+                                <select onchange="updateTicketField(${i}, 'category', this.value)" class="text-xs bg-white border border-slate-300 rounded-lg px-2 py-1 font-semibold text-slate-600">
+                                    <option value="景點門票">景點門票</option>
+                                    <option value="交通類" selected>交通類</option>
+                                </select>
+                                <button onclick="deleteTicket(${i})" class="text-slate-400 hover:text-rose-600 text-xs p-1.5"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="border-t border-dashed border-slate-200 pt-1.5">
+                            <input type="text" value="${t.note || ''}" placeholder="(在此新增備註)" onchange="updateTicketField(${i}, 'note', this.value)" class="w-full text-[11px] text-slate-500 bg-transparent outline-none">
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+
+            html += `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap justify-between items-center gap-2">
+                    <span class="text-xs font-bold text-slate-600">票券總費用：<span class="text-blue-900 text-sm font-black">NT$${grandTotal.toLocaleString()}</span></span>
+                    <button onclick="addTicket()" class="bg-blue-900 hover:bg-blue-800 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition-all shadow">
+                        <i class="fa-solid fa-plus mr-1"></i>新增票券項目
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function updateTicketField(i, field, val) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.tickets[i][field] = val;
+            saveLocal();
+            renderTickets();
+        }
+
+        function updateTicketStatus(i, status) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.tickets[i].status = status;
+            saveLocal();
+            renderTickets();
+        }
+
+        function toggleTicketCheck(i) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.tickets[i].checked = !trip.tickets[i].checked;
+            saveLocal();
+            renderTickets();
         }
 
         function renderPacking() {
             const trip = getCurrentTrip();
-            const container = document.getElementById('packing-categories');
+            const container = document.getElementById('packing-container');
             container.innerHTML = '';
+
             let total = 0, checkedCount = 0;
 
             trip.packing.forEach((cat, cIdx) => {
-                const group = document.createElement('div');
-                group.className = "bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm space-y-2";
-                
                 let itemsHtml = '';
                 cat.items.forEach((item, iIdx) => {
                     total++;
                     if(item.checked) checkedCount++;
                     itemsHtml += `
-                        <label class="flex items-center space-x-3 p-1.5 hover:bg-slate-50 rounded-lg cursor-pointer text-xs">
-                            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="togglePacking(${cIdx}, ${iIdx})" class="w-4 h-4 text-blue-900 rounded focus:ring-blue-500 border-slate-300">
-                            <span class="${item.checked ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}">${item.name}</span>
-                        </label>
+                        <div class="p-2.5 hover:bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs transition-all">
+                            <label class="flex items-center space-x-3 cursor-pointer flex-1">
+                                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="togglePacking(${cIdx}, ${iIdx})" class="w-4 h-4 text-blue-900 rounded focus:ring-blue-500 border-slate-300">
+                                <span class="${item.checked ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium'}">${item.name}</span>
+                            </label>
+                            <button onclick="deletePackingItem(${cIdx}, ${iIdx})" class="text-slate-300 hover:text-rose-500 p-1"><i class="fa-solid fa-trash text-[11px]"></i></button>
+                        </div>
                     `;
                 });
 
-                group.innerHTML = `
-                    <h3 class="font-bold text-sm text-slate-800 border-b pb-1.5 flex items-center justify-between">
-                        <span>${cat.category}</span>
-                    </h3>
-                    <div class="divide-y divide-slate-50">${itemsHtml}</div>
-                `;
-                container.appendChild(group);
-            });
-
-            const pct = total === 0 ? 0 : Math.round((checkedCount / total) * 100);
-            document.getElementById('packing-progress').textContent = `${checkedCount}/${total} (${pct}%)`;
-            document.getElementById('packing-progress-bar').style.width = `${pct}%`;
-        }
-
-        function renderBudget() {
-            const trip = getCurrentTrip();
-            const container = document.getElementById('expenses-list');
-            container.innerHTML = '';
-            let totalForeign = 0;
-            let totalTwd = 0;
-
-            document.getElementById('currency-label').textContent = `總支出 (${trip.currency})`;
-            document.getElementById('rate-display').textContent = `1 ${trip.currency} ≈ ${trip.rate} TWD`;
-
-            trip.expenses.forEach((e, i) => {
-                const foreignAmt = Number(e.eur || e.amount || 0);
-                const twdAmt = Number(e.twd || (foreignAmt * trip.rate));
-
-                totalForeign += foreignAmt;
-                totalTwd += twdAmt;
-
-                const item = document.createElement('div');
-                item.className = "py-2.5 flex justify-between items-center text-xs";
-                item.innerHTML = `
-                    <div>
-                        <p class="font-bold text-slate-800">${e.desc}</p>
-                        <span class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">付款人: ${e.payer || '公費'}</span>
-                    </div>
-                    <div class="text-right flex items-center space-x-3">
-                        <div>
-                            <p class="font-bold text-slate-800">${trip.currency} ${foreignAmt}</p>
-                            <p class="text-[10px] text-slate-400">NT$ ${Math.round(twdAmt)}</p>
+                container.innerHTML = `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <h2 class="font-bold text-slate-800 flex items-center space-x-2">
+                                <span class="text-rose-500">🎒</span> 
+                                <span>行前準備 / 行李清單</span>
+                            </h2>
+                            <span class="text-xs font-bold text-blue-900 bg-blue-50 px-2.5 py-1 rounded-full">${checkedCount}/${total} 完成</span>
                         </div>
-                        <button onclick="deleteExpense(${i})" class="text-slate-300 hover:text-rose-500 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full transition-all duration-300" style="width: ${total === 0 ? 0 : Math.round((checkedCount/total)*100)}%"></div>
+                        </div>
+                        <div class="space-y-2">${itemsHtml}</div>
+                        <div class="pt-2 flex space-x-2">
+                            <input type="text" id="new-packing-input" placeholder="新增清單項目..." class="flex-1 border rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none" onkeypress="if(event.key==='Enter') addPackingItem(${cIdx})">
+                            <button onclick="addPackingItem(${cIdx})" class="bg-blue-900 text-white font-bold text-xs px-4 py-2 rounded-xl hover:bg-blue-800 shadow">新增</button>
+                        </div>
                     </div>
                 `;
-                container.appendChild(item);
             });
-
-            document.getElementById('total-foreign').textContent = `${trip.currency} ${totalForeign}`;
-            document.getElementById('total-twd').textContent = `NT$ ${Math.round(totalTwd)}`;
         }
 
         function togglePacking(cIdx, iIdx) {
@@ -906,6 +1085,126 @@
             trip.packing[cIdx].items[iIdx].checked = !trip.packing[cIdx].items[iIdx].checked;
             saveLocal();
             renderPacking();
+        }
+
+        function addPackingItem(cIdx) {
+            const input = document.getElementById('new-packing-input');
+            const name = input ? input.value.trim() : "";
+            if (!name) return;
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.packing[cIdx].items.push({ name, checked: false });
+            saveLocal();
+            renderPacking();
+        }
+
+        function deletePackingItem(cIdx, iIdx) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.packing[cIdx].items.splice(iIdx, 1);
+            saveLocal();
+            renderPacking();
+        }
+
+        function renderBudget() {
+            const trip = getCurrentTrip();
+
+            // Set input values
+            document.getElementById('trip-budget-input').value = trip.budget !== undefined ? trip.budget : 150000;
+            document.getElementById('manual-flight-input').value = trip.manualFlight || 0;
+            document.getElementById('manual-shopping-input').value = trip.manualShopping || 0;
+            document.getElementById('manual-hotel-input').value = trip.manualHotel || 0;
+
+            // Compute category totals
+            let flightTotal = Number(trip.manualFlight || 0);
+            let shoppingTotal = Number(trip.manualShopping || 0);
+            let hotelTotal = Number(trip.manualHotel || 0);
+
+            // Compute attraction & transport from tickets
+            let attractionTotal = 0;
+            let transportTotal = 0;
+            if (trip.tickets) {
+                trip.tickets.forEach(t => {
+                    const c = Number(t.cost || 0);
+                    if (t.category === "交通類") {
+                        transportTotal += c;
+                    } else {
+                        attractionTotal += c;
+                    }
+                });
+            }
+
+            // Compute dining from daily itinerary items or extra expenses
+            let diningTotal = 0;
+            if (trip.days) {
+                trip.days.forEach(day => {
+                    if (day.items) {
+                        day.items.forEach(item => {
+                            if (item.title && (item.title.includes('晚餐') || item.title.includes('午餐') || item.title.includes('早餐') || item.title.includes('咖啡') || item.title.includes('簡餐') || item.title.includes('餐廳'))) {
+                                diningTotal += Number(item.cost || 0);
+                            }
+                        });
+                    }
+                });
+            }
+            if (trip.expenses) {
+                trip.expenses.forEach(e => {
+                    diningTotal += Number(e.twd || 0);
+                });
+            }
+
+            let otherTotal = 0; // miscellaneous
+
+            let grandEstimatedCost = flightTotal + shoppingTotal + attractionTotal + diningTotal + transportTotal + otherTotal + hotelTotal;
+
+            // Update top cards
+            document.getElementById('top-total-budget').textContent = `NT$${Number(trip.budget || 150000).toLocaleString()}`;
+            document.getElementById('top-estimated-cost').textContent = `NT$${grandEstimatedCost.toLocaleString()}`;
+
+            // Progress bar
+            const budgetLimit = Number(trip.budget || 150000);
+            const percentage = budgetLimit > 0 ? Math.round((grandEstimatedCost / budgetLimit) * 100) : 0;
+            const progressBar = document.getElementById('budget-progress-bar');
+            progressBar.style.width = `${Math.min(percentage, 100)}%`;
+            if (percentage > 100) {
+                progressBar.className = "bg-rose-500 h-full transition-all duration-300";
+            } else if (percentage > 80) {
+                progressBar.className = "bg-amber-500 h-full transition-all duration-300";
+            } else {
+                progressBar.className = "bg-blue-600 h-full transition-all duration-300";
+            }
+
+            // Render category breakdown list
+            const breakdownContainer = document.getElementById('category-breakdown-list');
+            breakdownContainer.innerHTML = `
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">機票</span><span class="font-bold text-slate-900">NT$${flightTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">購物</span><span class="font-bold text-slate-900">NT$${shoppingTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">景點門票</span><span class="font-bold text-slate-900">NT$${attractionTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">餐飲</span><span class="font-bold text-slate-900">NT$${diningTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">交通</span><span class="font-bold text-slate-900">NT$${transportTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">其他</span><span class="font-bold text-slate-900">NT$${otherTotal.toLocaleString()}</span></div>
+                <div class="py-2.5 flex justify-between items-center"><span class="text-slate-700 font-medium">住宿</span><span class="font-bold text-slate-900">NT$${hotelTotal.toLocaleString()}</span></div>
+            `;
+        }
+
+        function updateManualExpense(type, val) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            const numVal = Number(val) || 0;
+            if (type === 'flight') trip.manualFlight = numVal;
+            if (type === 'shopping') trip.manualShopping = numVal;
+            if (type === 'hotel') trip.manualHotel = numVal;
+            saveLocal();
+            renderBudget();
+        }
+
+        function updateTripBudget(val) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            trip.budget = Number(val) || 0;
+            saveLocal();
+            renderBudget();
+            showToast("已成功更新總預算！");
         }
 
         function showAddModal() {
@@ -953,6 +1252,7 @@
             saveLocal();
             closeModal();
             renderTimeline();
+            renderBudget();
         }
 
         function deleteItem(idx) {
@@ -961,17 +1261,19 @@
             trip.days[trip.activeDayIndex].items.splice(idx, 1);
             saveLocal();
             renderTimeline();
+            renderBudget();
         }
 
         function addTicket() {
-            const title = prompt("請輸入票券名稱:", "景點 / 交通門票");
+            const title = prompt("請輸入票券名稱:", "新景點 / 交通門票");
             if (!title) return;
-            const date = prompt("請輸入預約時間/使用日期:", "Day 1");
+            const cost = Number(prompt("請輸入金額 (NT$):", "1000") || 0);
             recordStateForUndo();
             const trip = getCurrentTrip();
-            trip.tickets.push({ title, status: "已預約", date: date || "未確定", note: "請確認 QR Code" });
+            trip.tickets.push({ category: "景點門票", title, status: "尚未購買", cost: cost, type: "景點門票", note: "" });
             saveLocal();
             renderTickets();
+            renderBudget();
         }
 
         function deleteTicket(i) {
@@ -980,6 +1282,7 @@
             trip.tickets.splice(i, 1);
             saveLocal();
             renderTickets();
+            renderBudget();
         }
 
         function addExpense() {
