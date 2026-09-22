@@ -271,7 +271,7 @@
                     <input type="number" id="manual-food" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2a總額, TWD)</label>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2人總額, TWD)</label>
                     <input type="number" id="manual-hotel" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
             </div>
@@ -409,6 +409,19 @@
         </div>
     </div>
 
+    <!-- Conflict Warning Modal -->
+    <div id="conflict-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center">
+            <div class="text-4xl">⚠️</div>
+            <h3 class="font-black text-xl text-slate-800">偵測到雲端資料衝突</h3>
+            <p id="conflict-msg" class="text-sm text-slate-600 leading-relaxed">雲端上的資料有較新的修改紀錄，直接覆蓋可能會遺失旅伴的變更。</p>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="resolveConflict('cloud')" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all text-xs">載入雲端最新版</button>
+                <button onclick="resolveConflict('local')" class="py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all text-xs shadow-md">覆蓋並上傳本地版</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const defaultPackingList = [
             { name: "護照（效期6個月以上）", done: false },
@@ -428,6 +441,7 @@
                 id: "paris",
                 name: "巴黎 2027",
                 activeDayIndex: 0,
+                lastModified: Date.now(),
                 manualFlight: 100000,
                 manualShopping: 20000,
                 manualFood: 15000,
@@ -505,6 +519,7 @@
 
         let historyStack = [];
         let gasUrl = localStorage.getItem('gasUrl') || "";
+        let pendingCloudData = null;
         
         function initApp() {
             const savedData = localStorage.getItem('multiTripData');
@@ -544,6 +559,8 @@
         }
 
         function saveLocal() {
+            const trip = getCurrentTrip();
+            trip.lastModified = Date.now();
             localStorage.setItem('multiTripData', JSON.stringify(appData));
         }
 
@@ -614,11 +631,13 @@
                 newTripObj = JSON.parse(JSON.stringify(getCurrentTrip()));
                 newTripObj.id = newId;
                 newTripObj.name = nameInp;
+                newTripObj.lastModified = Date.now();
             } else {
                 newTripObj = {
                     id: newId,
                     name: nameInp,
                     activeDayIndex: 0,
+                    lastModified: Date.now(),
                     manualFlight: 0,
                     manualShopping: 0,
                     manualFood: 0,
@@ -1368,13 +1387,40 @@
             if (!gasUrl) { showNotification('請先輸入並儲存 GAS 雲端網址！', 'error'); return; }
             
             const statusEl = document.getElementById('sync-status');
-            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping mr-1.5"></span><span class="text-yellow-300">上傳同步中...</span>`;
+            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping mr-1.5"></span><span class="text-yellow-300">同步檢查中...</span>`;
             
             try {
-                // Ensure latest local state is saved
-                saveLocal();
+                // 1. Fetch remote data first to check timestamps
+                const res = await fetch(gasUrl);
+                const remoteData = await res.json();
+                
+                if (remoteData && remoteData.trips) {
+                    const localTrip = getCurrentTrip();
+                    const remoteTrip = remoteData.trips[appData.activeTripId];
+                    
+                    if (remoteTrip && remoteTrip.lastModified && localTrip.lastModified) {
+                        // If remote is newer than local by more than 3 seconds, check for conflict
+                        if (remoteTrip.lastModified > localTrip.lastModified + 3000) {
+                            pendingCloudData = remoteData;
+                            document.getElementById('conflict-modal').classList.remove('hidden');
+                            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span><span class="text-amber-300">發生版本衝突</span>`;
+                            return;
+                        }
+                    }
+                }
 
-                // Send current appData to Google Apps Script
+                // 2. No conflict or remote is older -> Push local data
+                await executeCloudUpload();
+            } catch (error) {
+                // Fallback if GET fails (e.g. CORS or empty sheet), try direct POST upload
+                await executeCloudUpload();
+            }
+        }
+
+        async function executeCloudUpload() {
+            const statusEl = document.getElementById('sync-status');
+            try {
+                saveLocal();
                 await fetch(gasUrl, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -1383,11 +1429,28 @@
                 });
                 
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span><span class="text-emerald-400 font-bold">🟢 雲端已同步</span>`;
-                showNotification("🔄 雲端同步成功！最新修改已儲存");
-            } catch (error) {
+                showNotification("🔄 雲端同步成功！最新修改已上傳");
+            } catch (err) {
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span><span class="text-red-400">同步失敗</span>`;
-                showNotification("同步失敗，請檢查 GAS 網址與網路", "error");
+                showNotification("同步失敗，請檢查網路連線", "error");
             }
+        }
+
+        async function resolveConflict(choice) {
+            document.getElementById('conflict-modal').classList.add('hidden');
+            const statusEl = document.getElementById('sync-status');
+            
+            if (choice === 'cloud' && pendingCloudData) {
+                appData = pendingCloudData;
+                saveLocal();
+                renderTripSelector();
+                renderAll();
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span><span class="text-emerald-400 font-bold">🟢 已載入雲端版</span>`;
+                showNotification("📥 已成功載入旅伴的最新修改！");
+            } else {
+                await executeCloudUpload();
+            }
+            pendingCloudData = null;
         }
 
         window.onload = initApp;
