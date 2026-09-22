@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>巴黎 2027</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -24,7 +23,6 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Smooth Drag and Drop animations with dashed indicator and touch lock */
         .draggable-card {
             transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
             touch-action: pan-y;
@@ -111,6 +109,7 @@
 
     <main class="max-w-4xl mx-auto mt-6 px-1 sm:px-4 w-full">
         
+        <!-- Itinerary View -->
         <div id="view-itinerary" class="space-y-6 w-full">
             <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
             
@@ -152,6 +151,7 @@
             </div>
         </div>
 
+        <!-- Accommodation View -->
         <div id="view-accommodation" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm relative group w-full">
@@ -194,6 +194,7 @@
             </div>
         </div>
 
+        <!-- Tickets View -->
         <div id="view-tickets" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -208,6 +209,7 @@
             </div>
         </div>
 
+        <!-- Packing View -->
         <div id="view-packing" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -225,6 +227,7 @@
             </div>
         </div>
 
+        <!-- Budget View -->
         <div id="view-budget" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-2 gap-4 w-full">
                 <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
@@ -268,7 +271,7 @@
                     <input type="number" id="manual-food" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2人總額, TWD)</label>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2a總額, TWD)</label>
                     <input type="number" id="manual-hotel" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
             </div>
@@ -316,7 +319,7 @@
                 </div>
                 <div>
                     <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">📝</span> 備註</label>
-                    <textarea id="modal-desc" class="w-full border border-slate-200 rounded-2xl p-3 outline-none h-20 focus:border-blue-500 text-sm text-slate-600 bg-slate-50 resize-none" placeholder="若進內部參觀請預留時間..."></textarea>
+                    <textarea id="modal-desc" class="w-full border border-slate-200 rounded-2xl p-3 outline-none h-20 focus:border-blue-500 text-sm text-slate-600 bg-slate-50 resize-none" placeholder="若內部參觀請預留時間..."></textarea>
                 </div>
                 <div>
                     <label class="block text-amber-600 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">🌟</span> 必看 / 必吃 / 小提醒</label>
@@ -1365,24 +1368,13 @@
             if (!gasUrl) { showNotification('請先輸入並儲存 GAS 雲端網址！', 'error'); return; }
             
             const statusEl = document.getElementById('sync-status');
-            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping mr-1.5"></span><span class="text-yellow-300">同步中...</span>`;
+            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping mr-1.5"></span><span class="text-yellow-300">上傳同步中...</span>`;
             
             try {
-                // First try to fetch data from cloud
-                let success = false;
-                try {
-                    const response = await fetch(gasUrl);
-                    const cloudData = await response.json();
-                    if (cloudData && cloudData.trips) {
-                        appData = cloudData;
-                        saveLocal();
-                        renderTripSelector();
-                        renderAll();
-                        success = true;
-                    }
-                } catch(e) {}
+                // Ensure latest local state is saved
+                saveLocal();
 
-                // Then send current data to cloud
+                // Send current appData to Google Apps Script
                 await fetch(gasUrl, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -1391,10 +1383,10 @@
                 });
                 
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span><span class="text-emerald-400 font-bold">🟢 雲端已同步</span>`;
-                showNotification("🔄 雲端同步成功！");
+                showNotification("🔄 雲端同步成功！最新修改已儲存");
             } catch (error) {
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span><span class="text-red-400">同步失敗</span>`;
-                showNotification("同步失敗，請檢查 GAS 網址與權限", "error");
+                showNotification("同步失敗，請檢查 GAS 網址與網路", "error");
             }
         }
 
