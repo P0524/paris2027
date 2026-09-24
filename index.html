@@ -109,7 +109,6 @@
 
     <main class="max-w-4xl mx-auto mt-6 px-1 sm:px-4 w-full">
         
-        <!-- Itinerary View -->
         <div id="view-itinerary" class="space-y-6 w-full">
             <div class="flex items-center space-x-2 w-full">
                 <div id="day-tabs" class="flex-1 flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
@@ -153,7 +152,6 @@
             </div>
         </div>
 
-        <!-- Accommodation View -->
         <div id="view-accommodation" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm relative group w-full">
@@ -196,7 +194,6 @@
             </div>
         </div>
 
-        <!-- Tickets View -->
         <div id="view-tickets" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -211,7 +208,6 @@
             </div>
         </div>
 
-        <!-- Packing View -->
         <div id="view-packing" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -229,7 +225,6 @@
             </div>
         </div>
 
-        <!-- Budget View -->
         <div id="view-budget" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-2 gap-4 w-full">
                 <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
@@ -275,7 +270,7 @@
                     <input type="text" id="manual-shopping" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
 
-                <!-- Manual Daily Dining Breakdown with Meal Type Selector (Synced with Itinerary Days) -->
+                <!-- Daily Dining Breakdown with Meal Type Selector (Synced with Itinerary Days) -->
                 <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-3">
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-indigo-900">🍽️ 每日餐飲費用明細 (自動加總)</span>
@@ -307,7 +302,6 @@
 
     </main>
 
-    <!-- Itinerary Item Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex flex-col justify-end transition-opacity duration-300 opacity-0 w-full h-full">
         <div class="absolute inset-0 z-0" onclick="closeModal()"></div>
         <div id="modal-content" class="bg-white rounded-t-3xl max-w-4xl mx-auto w-full p-5 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto transform transition-transform duration-300 translate-y-full relative z-10 flex flex-col pb-10">
@@ -607,7 +601,7 @@
                 manualFlight: 100000,
                 manualShopping: 20000,
                 manualHotel: 0,
-                manualDiningByDay: {}, // Format: { dayIdx: [{type: '早餐', cost: 300}, ...] }
+                manualDiningByDay: {}, 
                 totalBudget: 300000,
                 hotels: [
                     { name: "Maison Traversière", date: "2/4~2/6 (3晚)", address: "31 Rue Traversière, 75012 Paris, France" },
@@ -843,6 +837,63 @@
             if(tabId === 'budget') renderBudget();
         }
 
+        let draggedDayIndex = null;
+
+        function recalculateDayDates() {
+            const trip = getCurrentTrip();
+            if (!trip.days || trip.days.length === 0) return;
+
+            let baseMonth = 2;
+            let baseDay = 3;
+
+            if (trip.days[0].date) {
+                const parts = trip.days[0].date.split(/[\/~-]/);
+                if (parts.length >= 2) {
+                    const m = parseInt(parts[0]);
+                    const d = parseInt(parts[1]);
+                    if (!isNaN(m) && !isNaN(d)) {
+                        baseMonth = m;
+                        baseDay = d;
+                    }
+                }
+            }
+
+            const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+            let currDate = new Date(2027, baseMonth - 1, baseDay);
+
+            trip.days.forEach((day, idx) => {
+                let m = currDate.getMonth() + 1;
+                let d = currDate.getDate();
+                day.date = `${m}/${d}`;
+                day.label = weekdays[currDate.getDay()];
+                currDate.setDate(currDate.getDate() + 1);
+            });
+        }
+
+        function editFirstDayDate() {
+            const trip = getCurrentTrip();
+            if (!trip.days || trip.days.length === 0) return;
+            const currentFirstDate = trip.days[0].date || "2/3";
+            const newDateStr = prompt("請輸入第一天的新日期 (格式如 2/11 或 5/20):", currentFirstDate);
+            if (newDateStr) {
+                const parts = newDateStr.trim().split(/[\/~-]/);
+                if (parts.length >= 2) {
+                    const m = parseInt(parts[0]);
+                    const d = parseInt(parts[1]);
+                    if (!isNaN(m) && !isNaN(d)) {
+                        recordStateForUndo();
+                        trip.days[0].date = `${m}/${d}`;
+                        recalculateDayDates();
+                        saveLocal();
+                        renderAll();
+                        showNotification("📅 已更新第一天日期並重新計算後續行程！");
+                        return;
+                    }
+                }
+                showNotification("日期格式錯誤，請使用 月/日 (例如 2/11)", "error");
+            }
+        }
+
         function renderDayTabs() {
             const container = document.getElementById('day-tabs');
             container.innerHTML = '';
@@ -851,12 +902,60 @@
             trip.days.forEach((day, index) => {
                 const isActive = index === (trip.activeDayIndex || 0);
                 const btn = document.createElement('button');
-                btn.className = `min-w-[65px] py-2 px-2.5 rounded-2xl flex flex-col items-center justify-center transition-all flex-shrink-0 ${isActive ? 'bg-indigo-800 text-white shadow-md transform scale-105' : 'bg-white text-slate-500 border border-slate-100'}`;
+                btn.className = `min-w-[65px] py-2 px-2.5 rounded-2xl flex flex-col items-center justify-center transition-all flex-shrink-0 cursor-grab active:cursor-grabbing select-none ${isActive ? 'bg-indigo-800 text-white shadow-md transform scale-105' : 'bg-white text-slate-500 border border-slate-100'}`;
+                btn.draggable = true;
                 btn.innerHTML = `<span class="text-[11px] font-bold mb-1">${day.label}</span><span class="${isActive ? 'text-base font-black' : 'text-sm font-bold'}">${day.date}</span>`;
-                btn.onclick = () => {
+                
+                btn.onclick = (e) => {
+                    if (btn.dataset.isDragging === "true") return;
+                    if (index === 0) {
+                        // Allow clicking Day 1 to edit start date
+                        // If user double clicks or holds, or we can provide a nice prompt
+                        // Let's check if it's a direct click vs drag
+                    }
                     trip.activeDayIndex = index;
                     saveLocal(); renderDayTabs(); renderTimeline(); renderFoodRecommendations();
                 };
+
+                // Double click or long press on Day 1 to edit start date
+                if (index === 0) {
+                    btn.title = "點擊以修改第一天起始日期";
+                    btn.ondblclick = (e) => {
+                        e.stopPropagation();
+                        editFirstDayDate();
+                    };
+                }
+
+                // Day drag and drop sorting
+                btn.addEventListener('dragstart', (e) => {
+                    draggedDayIndex = index;
+                    btn.dataset.isDragging = "true";
+                    e.dataTransfer.setData('text/plain', index);
+                });
+
+                btn.addEventListener('dragend', () => {
+                    setTimeout(() => { btn.dataset.isDragging = "false"; }, 100);
+                });
+
+                btn.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                btn.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedDayIndex !== null && draggedDayIndex !== index) {
+                        recordStateForUndo();
+                        const movedDay = trip.days.splice(draggedDayIndex, 1)[0];
+                        trip.days.splice(index, 0, movedDay);
+                        trip.activeDayIndex = index;
+                        recalculateDayDates();
+                        saveLocal();
+                        renderAll();
+                        showNotification("📅 天數順序已重新排列並自動更新日期");
+                    }
+                    draggedDayIndex = null;
+                });
+
                 container.appendChild(btn);
             });
         }
@@ -864,15 +963,33 @@
         function addNewDay() {
             recordStateForUndo();
             const trip = getCurrentTrip();
-            const newDayNum = trip.days.length + 1;
+            recalculateDayDates();
+            
+            const lastDay = trip.days[trip.days.length - 1];
+            let nextMonth = 2, nextDay = 4;
+            if (lastDay && lastDay.date) {
+                const parts = lastDay.date.split(/[\/~-]/);
+                if (parts.length >= 2) {
+                    let m = parseInt(parts[0]);
+                    let d = parseInt(parts[1]);
+                    if (!isNaN(m) && !isNaN(d)) {
+                        let dt = new Date(2027, m - 1, d);
+                        dt.setDate(dt.getDate() + 1);
+                        nextMonth = dt.getMonth() + 1;
+                        nextDay = dt.getDate();
+                    }
+                }
+            }
+
             trip.days.push({
-                date: `Day ${newDayNum}`,
-                label: `新`,
+                date: `${nextMonth}/${nextDay}`,
+                label: "新",
                 foodRecommendations: [],
                 items: [
                     { time: "10:00", title: "🎯 新增行程項目", desc: "點擊編輯按鈕修改內容", mapKey: "Paris", cost: 0, travelAfter: null }
                 ]
             });
+            recalculateDayDates();
             trip.activeDayIndex = trip.days.length - 1;
             saveLocal();
             renderAll();
@@ -1003,7 +1120,7 @@
             
             if (!currentDay) return;
 
-            document.getElementById('day-title').textContent = `第 ${currentDayIndex + 1} 天`;
+            document.getElementById('day-title').innerHTML = `第 ${currentDayIndex + 1} 天 (${currentDay.date}) <button onclick="editFirstDayDate()" class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-xl font-bold ml-2 hover:bg-indigo-100 transition-colors inline-flex items-center">✏️ 修改起始日期</button>`;
             
             const summaryText = currentDay.items.map(item => item.title.replace(/^[^\w\s\u4e00-\u9fa5]+/, '').trim()).join(" ➔ ");
             document.getElementById('day-subtitle').textContent = summaryText;
@@ -1188,8 +1305,9 @@
                 recordStateForUndo();
                 trip.days.splice(currentDayIndex, 1);
                 if (trip.days.length === 0) {
-                    trip.days.push({ date: "Day 1", label: "1", foodRecommendations: [], items: [] });
+                    trip.days.push({ date: "2/3", label: "三", foodRecommendations: [], items: [] });
                 }
+                recalculateDayDates();
                 trip.activeDayIndex = Math.max(0, currentDayIndex - 1);
                 saveLocal();
                 renderAll();
@@ -1739,7 +1857,6 @@
             document.getElementById('manual-hotel').value = Number(trip.manualHotel).toLocaleString();
             document.getElementById('input-total-budget').value = Number(trip.totalBudget).toLocaleString();
 
-            // Render Daily Dining Breakdown UI (Synced automatically with itinerary days)
             let totalManualDining = 0;
             const container = document.getElementById('manual-dining-days-container');
             container.innerHTML = '';
