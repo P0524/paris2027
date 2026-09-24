@@ -109,6 +109,7 @@
 
     <main class="max-w-4xl mx-auto mt-6 px-1 sm:px-4 w-full">
         
+        <!-- Itinerary View -->
         <div id="view-itinerary" class="space-y-6 w-full">
             <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
             
@@ -132,11 +133,11 @@
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-slate-100 px-1 sm:px-0 space-y-4">
-                    <h3 class="font-bold text-slate-800 flex items-center text-base"><span class="mr-2">🍽️</span> 附近美食推薦</h3>
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 flex items-center text-base"><span class="mr-2">🍽️</span> 附近美食推薦</h3>
+                        <button onclick="showAddFoodModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-3 py-1.5 rounded-xl transition-colors shadow-sm">➕ 新增餐廳</button>
+                    </div>
                     <div id="food-recommendations-list" class="space-y-3"></div>
-                    <button onclick="showAddFoodModal()" class="w-full py-3.5 border-2 border-dashed border-slate-200 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center space-x-2">
-                        <span class="text-lg">➕</span> <span>新增餐廳</span>
-                    </button>
                 </div>
 
                 <div class="mt-8 pt-4 px-1 sm:px-0">
@@ -147,6 +148,7 @@
             </div>
         </div>
 
+        <!-- Accommodation View -->
         <div id="view-accommodation" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm relative group w-full">
@@ -189,6 +191,7 @@
             </div>
         </div>
 
+        <!-- Tickets View -->
         <div id="view-tickets" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -203,6 +206,7 @@
             </div>
         </div>
 
+        <!-- Packing View -->
         <div id="view-packing" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full">
                 <div class="flex justify-between items-end mb-4 border-b border-slate-100 pb-4">
@@ -220,6 +224,7 @@
             </div>
         </div>
 
+        <!-- Budget View -->
         <div id="view-budget" class="hidden space-y-6 w-full px-1 sm:px-0">
             <div class="grid grid-cols-2 gap-4 w-full">
                 <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
@@ -251,27 +256,45 @@
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full space-y-4">
                 <h3 class="font-bold text-slate-800 mb-2 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">🧾</span> 手動填寫的費用</h3>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">✈️ 機票費用 (2人總額, TWD)</label>
-                    <input type="number" id="manual-flight" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-slate-500">✈️ 機票費用 (2人總額, TWD)</label>
+                        <button onclick="openCalculatorFor('manual-flight')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold hover:bg-indigo-100">🧮 計算機</button>
+                    </div>
+                    <input type="text" id="manual-flight" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🛍️ 購物費用 (2人總額, TWD)</label>
-                    <input type="number" id="manual-shopping" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-slate-500">🛍️ 購物費用 (2人總額, TWD)</label>
+                        <button onclick="openCalculatorFor('manual-shopping')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold hover:bg-indigo-100">🧮 計算機</button>
+                    </div>
+                    <input type="text" id="manual-shopping" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🍽️ 餐飲費用 (2人總額, TWD)</label>
-                    <input type="number" id="manual-food" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+
+                <!-- Manual Daily Dining Breakdown with Meal Type Selector (Synced with Itinerary Days) -->
+                <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-indigo-900">🍽️ 每日餐飲費用明細 (自動加總)</span>
+                        <span id="manual-dining-total-display" class="text-xs font-black text-indigo-700">NT$ 0</span>
+                    </div>
+                    <div id="manual-dining-days-container" class="space-y-4 pt-1"></div>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1.5">🏨 住宿費用 (2人總額, TWD)</label>
-                    <input type="number" id="manual-hotel" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-slate-500">🏨 住宿費用 (2人總額, TWD)</label>
+                        <button onclick="openCalculatorFor('manual-hotel')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold hover:bg-indigo-100">🧮 計算機</button>
+                    </div>
+                    <input type="text" id="manual-hotel" onchange="updateManualExpenses()" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50">
                 </div>
             </div>
 
             <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm w-full space-y-4">
-                <h3 class="font-bold text-slate-800 mb-2 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">✏️</span> 調整每人總預算</h3>
+                <div class="flex justify-between items-center mb-1.5">
+                    <h3 class="font-bold text-slate-800 flex items-center border-b border-slate-100 pb-3"><span class="mr-2 text-xl">✏️</span> 調整每人總預算</h3>
+                    <button onclick="openCalculatorFor('input-total-budget')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold hover:bg-indigo-100">🧮 計算機</button>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="number" id="input-total-budget" class="flex-1 border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50" placeholder="150000">
+                    <input type="text" id="input-total-budget" class="flex-1 border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm font-bold text-slate-800 bg-slate-50" placeholder="150,000">
                     <button onclick="saveTotalBudget()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-md shadow-blue-500/20 whitespace-nowrap">更新每人總預算</button>
                 </div>
             </div>
@@ -301,8 +324,11 @@
                         <input type="text" id="modal-time" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm sm:text-base font-medium text-slate-700 bg-slate-50" placeholder="10:30-11:30">
                     </div>
                     <div class="col-span-2 sm:col-span-1">
-                        <label class="block text-slate-500 font-bold mb-1.5 text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">💰</span> 預估金額 (TWD)</label>
-                        <input type="number" id="modal-cost" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm sm:text-base font-bold text-slate-800 bg-slate-50" placeholder="0">
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-slate-500 font-bold text-[11px] sm:text-xs tracking-wider flex items-center"><span class="mr-1">💰</span> 預估金額 (TWD)</label>
+                            <button onclick="openCalculatorFor('modal-cost')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold hover:bg-indigo-100">🧮 計算機</button>
+                        </div>
+                        <input type="text" id="modal-cost" class="w-full border border-slate-200 rounded-2xl p-3 outline-none focus:border-blue-500 text-sm sm:text-base font-bold text-slate-800 bg-slate-50" placeholder="0">
                     </div>
                 </div>
                 <div>
@@ -504,6 +530,42 @@
         </div>
     </div>
 
+    <!-- Calculator Modal -->
+    <div id="calc-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="font-black text-base text-slate-800">🧮 簡易計算機</h3>
+                <button onclick="closeCalculator()" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            </div>
+            <div id="calc-display" class="bg-slate-100 p-4 rounded-2xl text-right font-mono text-xl font-bold text-slate-800 overflow-x-auto">0</div>
+            <div class="grid grid-cols-4 gap-2 text-sm font-bold">
+                <button onclick="calcClear()" class="bg-red-50 text-red-600 p-3 rounded-xl hover:bg-red-100">C</button>
+                <button onclick="calcAppend('(')" class="bg-slate-100 text-slate-600 p-3 rounded-xl hover:bg-slate-200">(</button>
+                <button onclick="calcAppend(')')" class="bg-slate-100 text-slate-600 p-3 rounded-xl hover:bg-slate-200">)</button>
+                <button onclick="calcAppend('/')" class="bg-indigo-50 text-indigo-700 p-3 rounded-xl hover:bg-indigo-100">÷</button>
+
+                <button onclick="calcAppend('7')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">7</button>
+                <button onclick="calcAppend('8')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">8</button>
+                <button onclick="calcAppend('9')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">9</button>
+                <button onclick="calcAppend('*')" class="bg-indigo-50 text-indigo-700 p-3 rounded-xl hover:bg-indigo-100">×</button>
+
+                <button onclick="calcAppend('4')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">4</button>
+                <button onclick="calcAppend('5')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">5</button>
+                <button onclick="calcAppend('6')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">6</button>
+                <button onclick="calcAppend('-')" class="bg-indigo-50 text-indigo-700 p-3 rounded-xl hover:bg-indigo-100">-</button>
+
+                <button onclick="calcAppend('1')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">1</button>
+                <button onclick="calcAppend('2')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">2</button>
+                <button onclick="calcAppend('3')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">3</button>
+                <button onclick="calcAppend('+')" class="bg-indigo-50 text-indigo-700 p-3 rounded-xl hover:bg-indigo-100">+</button>
+
+                <button onclick="calcAppend('0')" class="col-span-2 bg-slate-50 p-3 rounded-xl hover:bg-slate-100">0</button>
+                <button onclick="calcAppend('.')" class="bg-slate-50 p-3 rounded-xl hover:bg-slate-100">.</button>
+                <button onclick="calcEquals()" class="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-500">=</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Conflict Warning Modal -->
     <div id="conflict-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center">
@@ -539,8 +601,8 @@
                 lastModified: Date.now(),
                 manualFlight: 100000,
                 manualShopping: 20000,
-                manualFood: 15000,
                 manualHotel: 0,
+                manualDiningByDay: {}, // Format: { dayIdx: [{type: '早餐', cost: 300}, ...] }
                 totalBudget: 300000,
                 hotels: [
                     { name: "Maison Traversière", date: "2/4~2/6 (3晚)", address: "31 Rue Traversière, 75012 Paris, France" },
@@ -615,6 +677,8 @@
         let historyStack = [];
         let gasUrl = localStorage.getItem('gasUrl') || "";
         let pendingCloudData = null;
+        let activeCalcInputId = null;
+        let calcExpression = "0";
         
         function initApp() {
             const savedData = localStorage.getItem('multiTripData');
@@ -735,8 +799,8 @@
                     lastModified: Date.now(),
                     manualFlight: 0,
                     manualShopping: 0,
-                    manualFood: 0,
                     manualHotel: 0,
+                    manualDiningByDay: {},
                     totalBudget: 150000,
                     hotels: [],
                     flight: {
@@ -963,7 +1027,7 @@
                                 </button>
                 `;
                 
-                if (item.cost > 0) htmlStr += `<span class="bg-amber-50 text-amber-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center shadow-sm whitespace-nowrap">💰 NT$${item.cost}</span>`;
+                if (item.cost > 0) htmlStr += `<span class="bg-amber-50 text-amber-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center shadow-sm whitespace-nowrap">💰 NT$${Number(item.cost).toLocaleString()}</span>`;
                 
                 htmlStr += `
                             </div>
@@ -1195,13 +1259,15 @@
             const currentDayIndex = trip.activeDayIndex || 0;
             const currentDay = trip.days[currentDayIndex];
             
+            const costVal = evaluateExpression(document.getElementById('modal-cost').value) || 0;
+
             const newItemData = {
                 time: document.getElementById('modal-time').value || "隨時",
                 title: document.getElementById('modal-item-title').value || "新項目",
                 desc: document.getElementById('modal-desc').value || "",
                 tips: document.getElementById('modal-tips').value || "",
                 mapKey: document.getElementById('modal-map-key').value || "",
-                cost: Number(document.getElementById('modal-cost').value || 0),
+                cost: costVal,
                 travelAfter: editIndex > -1 && currentDay.items[editIndex] ? currentDay.items[editIndex].travelAfter : { mode: "walk", text: "00時 15分" }
             };
 
@@ -1424,9 +1490,9 @@
                             <button onclick="deleteTicket(${i})" class="text-slate-300 hover:text-red-500 p-1 text-sm">🗑️</button>
                         </div>
                         <div class="flex items-center space-x-2 pt-2 border-t border-slate-50">
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex items-center space-x-1 w-32">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex items-center space-x-1 w-36">
                                 <span class="text-xs">💰</span>
-                                <input type="number" value="${t.cost || 0}" onchange="updateTicketCost(${i}, this.value)" class="w-full bg-transparent font-bold text-slate-800 text-xs outline-none">
+                                <input type="text" value="${Number(t.cost || 0).toLocaleString()}" onchange="updateTicketCost(${i}, this.value)" class="w-full bg-transparent font-bold text-slate-800 text-xs outline-none" title="支援算式計算">
                             </div>
                             <select onchange="updateTicketCategory(${i}, this.value)" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 outline-none">
                                 <option value="景點門票" ${t.category==='景點門票'?'selected':''}>景點門票</option>
@@ -1447,7 +1513,13 @@
         }
 
         function updateTicketName(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].name = val; saveLocal(); }
-        function updateTicketCost(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].cost = Number(val)||0; saveLocal(); renderBudget(); }
+        function updateTicketCost(i, val) { 
+            recordStateForUndo(); 
+            getCurrentTrip().tickets[i].cost = evaluateExpression(val); 
+            saveLocal(); 
+            renderTickets();
+            renderBudget(); 
+        }
         function updateTicketCategory(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].category = val; saveLocal(); renderBudget(); }
         function updateTicketNote(i, val) { recordStateForUndo(); getCurrentTrip().tickets[i].note = val; saveLocal(); }
         function deleteTicket(i) {
@@ -1499,43 +1571,205 @@
             }
         }
 
+        function evaluateExpression(expr) {
+            if (expr === undefined || expr === null) return 0;
+            if (typeof expr === 'number') return expr;
+            let cleanStr = String(expr).replace(/,/g, '').trim();
+            if (!cleanStr) return 0;
+            if (/^[0-9+\-*/().\s]+$/.test(cleanStr)) {
+                try {
+                    let result = Function('"use strict"; return (' + cleanStr + ')')();
+                    return isNaN(result) ? 0 : Number(result);
+                } catch (e) {
+                    return 0;
+                }
+            }
+            let num = parseFloat(cleanStr);
+            return isNaN(num) ? 0 : num;
+        }
+
         function updateManualExpenses() {
             recordStateForUndo();
             const trip = getCurrentTrip();
-            trip.manualFlight = Number(document.getElementById('manual-flight').value) || 0;
-            trip.manualShopping = Number(document.getElementById('manual-shopping').value) || 0;
-            trip.manualFood = Number(document.getElementById('manual-food').value) || 0;
-            trip.manualHotel = Number(document.getElementById('manual-hotel').value) || 0;
+            trip.manualFlight = evaluateExpression(document.getElementById('manual-flight').value);
+            trip.manualShopping = evaluateExpression(document.getElementById('manual-shopping').value);
+            trip.manualHotel = evaluateExpression(document.getElementById('manual-hotel').value);
             saveLocal();
             renderBudget();
+        }
+
+        function addDiningItem(dayIdx) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            if (!trip.manualDiningByDay) trip.manualDiningByDay = {};
+            if (!trip.manualDiningByDay[dayIdx]) trip.manualDiningByDay[dayIdx] = [];
+            
+            trip.manualDiningByDay[dayIdx].push({ type: "晚餐", cost: 0 });
+            saveLocal();
+            renderBudget();
+        }
+
+        function updateDiningItemType(dayIdx, itemIdx, val) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            if (trip.manualDiningByDay && trip.manualDiningByDay[dayIdx] && trip.manualDiningByDay[dayIdx][itemIdx]) {
+                trip.manualDiningByDay[dayIdx][itemIdx].type = val;
+                saveLocal();
+            }
+        }
+
+        function updateDiningItemCost(dayIdx, itemIdx, val) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            if (trip.manualDiningByDay && trip.manualDiningByDay[dayIdx] && trip.manualDiningByDay[dayIdx][itemIdx]) {
+                trip.manualDiningByDay[dayIdx][itemIdx].cost = evaluateExpression(val);
+                saveLocal();
+                renderBudget();
+            }
+        }
+
+        function deleteDiningItem(dayIdx, itemIdx) {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            if (trip.manualDiningByDay && trip.manualDiningByDay[dayIdx]) {
+                trip.manualDiningByDay[dayIdx].splice(itemIdx, 1);
+                saveLocal();
+                renderBudget();
+            }
         }
 
         function saveTotalBudget() {
             recordStateForUndo();
             const trip = getCurrentTrip();
-            trip.totalBudget = Number(document.getElementById('input-total-budget').value) || 150000;
+            trip.totalBudget = evaluateExpression(document.getElementById('input-total-budget').value) || 150000;
             saveLocal();
             renderBudget();
             showNotification("每人總預算已更新！");
+        }
+
+        function openCalculatorFor(inputId) {
+            activeCalcInputId = inputId;
+            const currentVal = document.getElementById(inputId).value || "0";
+            calcExpression = currentVal;
+            document.getElementById('calc-display').textContent = calcExpression;
+            document.getElementById('calc-modal').classList.remove('hidden');
+        }
+
+        function closeCalculator() {
+            document.getElementById('calc-modal').classList.add('hidden');
+            activeCalcInputId = null;
+        }
+
+        function calcAppend(val) {
+            if (calcExpression === "0" && val !== '.') {
+                calcExpression = val;
+            } else {
+                calcExpression += val;
+            }
+            document.getElementById('calc-display').textContent = calcExpression;
+        }
+
+        function calcClear() {
+            calcExpression = "0";
+            document.getElementById('calc-display').textContent = calcExpression;
+        }
+
+        function calcEquals() {
+            try {
+                let res = evaluateExpression(calcExpression);
+                calcExpression = String(res);
+                document.getElementById('calc-display').textContent = calcExpression;
+                if (activeCalcInputId) {
+                    const inputEl = document.getElementById(activeCalcInputId);
+                    if (inputEl) {
+                        inputEl.value = Number(res).toLocaleString();
+                        if (activeCalcInputId.startsWith('dining-')) {
+                            const parts = activeCalcInputId.split('-');
+                            const dIdx = parseInt(parts[1]);
+                            const iIdx = parseInt(parts[2]);
+                            updateDiningItemCost(dIdx, iIdx, res);
+                        } else {
+                            updateManualExpenses();
+                        }
+                    } else if (activeCalcInputId === 'modal-cost') {
+                        // modal cost
+                    } else if (activeCalcInputId === 'input-total-budget') {
+                        saveTotalBudget();
+                    }
+                }
+            } catch(e) {
+                document.getElementById('calc-display').textContent = "錯誤";
+                calcExpression = "0";
+            }
         }
 
         function renderBudget() {
             const trip = getCurrentTrip();
             if(trip.manualFlight === undefined) trip.manualFlight = 100000;
             if(trip.manualShopping === undefined) trip.manualShopping = 20000;
-            if(trip.manualFood === undefined) trip.manualFood = 15000;
             if(trip.manualHotel === undefined) trip.manualHotel = 0;
+            if(!trip.manualDiningByDay) trip.manualDiningByDay = {};
             if(trip.totalBudget === undefined) trip.totalBudget = 300000;
 
-            document.getElementById('manual-flight').value = trip.manualFlight;
-            document.getElementById('manual-shopping').value = trip.manualShopping;
-            document.getElementById('manual-food').value = trip.manualFood;
-            document.getElementById('manual-hotel').value = trip.manualHotel;
-            document.getElementById('input-total-budget').value = trip.totalBudget;
+            document.getElementById('manual-flight').value = Number(trip.manualFlight).toLocaleString();
+            document.getElementById('manual-shopping').value = Number(trip.manualShopping).toLocaleString();
+            document.getElementById('manual-hotel').value = Number(trip.manualHotel).toLocaleString();
+            document.getElementById('input-total-budget').value = Number(trip.totalBudget).toLocaleString();
+
+            // Render Daily Dining Breakdown UI (Synced automatically with itinerary days)
+            let totalManualDining = 0;
+            const container = document.getElementById('manual-dining-days-container');
+            container.innerHTML = '';
+
+            trip.days.forEach((day, dIdx) => {
+                if(!trip.manualDiningByDay[dIdx]) trip.manualDiningByDay[dIdx] = [];
+                const dayDiningList = trip.manualDiningByDay[dIdx];
+                let daySum = 0;
+
+                let itemsHtml = '';
+                dayDiningList.forEach((item, iIdx) => {
+                    daySum += item.cost;
+                    totalManualDining += item.cost;
+                    const inputId = `dining-${dIdx}-${iIdx}`;
+                    itemsHtml += `
+                        <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-indigo-100">
+                            <select onchange="updateDiningItemType(${dIdx}, ${iIdx}, this.value)" class="bg-indigo-50 text-indigo-900 text-xs font-bold px-2 py-1.5 rounded-lg border border-indigo-200 outline-none">
+                                <option value="早餐" ${item.type==='早餐'?'selected':''}>早餐</option>
+                                <option value="午餐" ${item.type==='午餐'?'selected':''}>午餐</option>
+                                <option value="下午茶" ${item.type==='下午茶'?'selected':''}>下午茶</option>
+                                <option value="晚餐" ${item.type==='晚餐'?'selected':''}>晚餐</option>
+                                <option value="宵夜" ${item.type==='宵夜'?'selected':''}>宵夜</option>
+                                <option value="飲料/點心" ${item.type==='飲料/點心'?'selected':''}>飲料/點心</option>
+                            </select>
+                            <div class="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                                <span class="text-xs text-slate-400 mr-1">NT$</span>
+                                <input type="text" id="${inputId}" value="${Number(item.cost || 0).toLocaleString()}" onchange="updateDiningItemCost(${dIdx}, ${iIdx}, this.value)" class="w-full bg-transparent font-bold text-slate-800 text-xs outline-none font-mono">
+                            </div>
+                            <button onclick="openCalculatorFor('${inputId}')" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded font-bold hover:bg-indigo-100 whitespace-nowrap" title="計算機">🧮</button>
+                            <button onclick="deleteDiningItem(${dIdx}, ${iIdx})" class="text-slate-300 hover:text-red-500 text-xs p-1">🗑️</button>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-white/80 p-3 rounded-2xl border border-indigo-100/80 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+                            <span>第 ${dIdx + 1} 天 (${day.date} ${day.label})</span>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-indigo-600 font-mono">NT$ ${daySum.toLocaleString()}</span>
+                                <button onclick="addDiningItem(${dIdx})" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] px-2 py-1 rounded-lg shadow-sm transition-all">+ 新增餐點</button>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">${itemsHtml || '<div class="text-[11px] text-slate-400 italic py-1">尚無填寫餐飲項目</div>'}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('manual-dining-total-display').textContent = `NT$ ${totalManualDining.toLocaleString()}`;
 
             let flightCost = trip.manualFlight;
             let shoppingCost = trip.manualShopping;
-            let foodCost = trip.manualFood;
+            let foodCost = totalManualDining;
             let hotelCost = trip.manualHotel;
             let ticketsCost = 0;
             let transportCost = 0;
@@ -1543,7 +1777,7 @@
 
             if(trip.tickets) {
                 trip.tickets.forEach(t => {
-                    const c = Number(t.cost) || 0;
+                    const c = evaluateExpression(t.cost);
                     if(t.category === '景點門票') ticketsCost += c;
                     else if(t.category === '交通') transportCost += c;
                     else otherCost += c;
@@ -1561,7 +1795,7 @@
             const totalEstimated = flightCost + shoppingCost + ticketsCost + foodCost + transportCost + otherCost + hotelCost;
             const totalBudget = trip.totalBudget;
 
-            document.getElementById('summary-total-budget').textContent = `NT$ ${totalBudget.toLocaleString()}`;
+            document.getElementById('summary-total-budget').textContent = `NT$ ${Number(totalBudget).toLocaleString()}`;
             document.getElementById('summary-estimated-cost').textContent = `NT$ ${totalEstimated.toLocaleString()}`;
 
             const pct = totalBudget > 0 ? Math.min(100, (totalEstimated / totalBudget) * 100) : 0;
