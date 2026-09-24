@@ -111,7 +111,12 @@
         
         <!-- Itinerary View -->
         <div id="view-itinerary" class="space-y-6 w-full">
-            <div id="day-tabs" class="flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
+            <div class="flex items-center space-x-2 w-full">
+                <div id="day-tabs" class="flex-1 flex overflow-x-auto space-x-2 pb-2 hide-scrollbar w-full px-0.5"></div>
+                <button onclick="addNewDay()" class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold px-3.5 py-3 rounded-2xl text-xs flex items-center justify-center whitespace-nowrap transition-all shadow-sm flex-shrink-0" title="新增一天行程">
+                    ➕ 新增天數
+                </button>
+            </div>
             
             <div class="bg-white rounded-3xl px-3 sm:px-6 py-5 sm:p-8 shadow-sm w-full overflow-hidden">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-100 pb-6 w-full px-1 sm:px-0">
@@ -854,6 +859,24 @@
                 };
                 container.appendChild(btn);
             });
+        }
+
+        function addNewDay() {
+            recordStateForUndo();
+            const trip = getCurrentTrip();
+            const newDayNum = trip.days.length + 1;
+            trip.days.push({
+                date: `Day ${newDayNum}`,
+                label: `新`,
+                foodRecommendations: [],
+                items: [
+                    { time: "10:00", title: "🎯 新增行程項目", desc: "點擊編輯按鈕修改內容", mapKey: "Paris", cost: 0, travelAfter: null }
+                ]
+            });
+            trip.activeDayIndex = trip.days.length - 1;
+            saveLocal();
+            renderAll();
+            showNotification(`➕ 已新增第 ${trip.days.length} 天行程`);
         }
 
         let draggedIndex = null;
